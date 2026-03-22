@@ -6,6 +6,7 @@ const MODEL_NAME = "gemini-3-flash-preview";
 
 interface SearchResult {
   id: string;
+  kind: "ocr" | "text";
   filename: string;
   score: number;
   matchedSnippet: string;
@@ -32,14 +33,21 @@ export async function POST(request: NextRequest) {
     }
 
     const entriesWithText = entries
-      .filter((e) => e.blocks.length > 0)
-      .map((e) => ({
-        id: e.id,
-        filename: e.filename,
-        blocks: e.blocks.map((b, i) => ({ index: i, text: b.text })),
-        blockCount: e.blocks.length,
-        updatedAt: e.updatedAt,
-      }));
+      .filter((e) => e.blocks.length > 0 || (e.rawText && e.rawText.trim().length > 0))
+      .map((e) => {
+        const hasBlocks = e.blocks.length > 0;
+        const blocks = hasBlocks
+          ? e.blocks.map((b, i) => ({ index: i, text: b.text }))
+          : [{ index: 0, text: e.rawText!.trim() }];
+        return {
+          id: e.id,
+          kind: e.kind,
+          filename: e.filename,
+          blocks,
+          blockCount: hasBlocks ? e.blocks.length : 1,
+          updatedAt: e.updatedAt,
+        };
+      });
 
     if (entriesWithText.length === 0) {
       return NextResponse.json({ results: [] });
@@ -50,13 +58,13 @@ export async function POST(request: NextRequest) {
         const blocksText = e.blocks
           .map((b) => `  [BLOCK_${b.index}] ${b.text}`)
           .join("\n");
-        return `[DOC_${docIdx}] filename="${e.filename}"\n${blocksText}`;
+        return `[DOC_${docIdx}] filename="${e.filename}" kind="${e.kind}"\n${blocksText}`;
       })
       .join("\n\n---\n\n");
 
     const prompt = `You are a semantic search engine for classical Chinese literature.
 
-Given a user query and a set of documents (each split into numbered blocks), rank the documents by semantic relevance and identify the specific blocks that match.
+Given a user query and a set of documents (each split into numbered blocks), rank the documents by semantic relevance and identify the specific blocks that match. Documents may be OCR-extracted or manually entered text — treat them equally.
 
 User query: "${query.trim()}"
 
@@ -92,6 +100,7 @@ Sort by score descending. Omit documents with 0 relevance.`;
         const entry = entriesWithText[r.index];
         return {
           id: entry.id,
+          kind: entry.kind,
           filename: entry.filename,
           score: Math.round(r.score * 100) / 100,
           matchedSnippet: r.snippet,

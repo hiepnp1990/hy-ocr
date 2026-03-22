@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 
 interface SearchResult {
   id: string;
+  kind: "ocr" | "text";
   filename: string;
   score: number;
   matchedSnippet: string;
@@ -231,7 +232,7 @@ function SearchPageInner() {
               <path d="m21 21-4.3-4.3" />
             </svg>
             <p className="text-sm">No matching documents found.</p>
-            <p className="text-xs mt-1">Try a different query or process more images first.</p>
+            <p className="text-xs mt-1">Try a different query or add more entries first.</p>
           </div>
         )}
 
@@ -242,19 +243,45 @@ function SearchPageInner() {
             </p>
 
             {results.map((result) => {
-              const detailHref = `/search/${result.id}?q=${encodeURIComponent(query)}&blocks=${result.matchedBlockIndices.join(",")}`;
+              const isText = result.kind === "text";
+              const detailHref = isText
+                ? `/text/${result.id}`
+                : `/search/${result.id}?q=${encodeURIComponent(query)}&blocks=${result.matchedBlockIndices.join(",")}`;
               return (
               <Link key={result.id} href={detailHref}>
                 <Card className="p-4 hover:bg-muted/40 transition-colors cursor-pointer group">
                   <div className="flex gap-4">
-                    <div className="w-14 h-14 rounded-md overflow-hidden bg-muted shrink-0">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={`/api/history/${result.id}/image`}
-                        alt={result.filename}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
+                    {isText ? (
+                      <div className="w-14 h-14 rounded-md bg-muted shrink-0 flex items-center justify-center">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="text-muted-foreground"
+                        >
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" />
+                          <path d="M14 2v6h6" />
+                          <path d="M16 13H8" />
+                          <path d="M16 17H8" />
+                          <path d="M10 9H8" />
+                        </svg>
+                      </div>
+                    ) : (
+                      <div className="w-14 h-14 rounded-md overflow-hidden bg-muted shrink-0">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={`/api/history/${result.id}/image`}
+                          alt={result.filename}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
@@ -267,15 +294,21 @@ function SearchPageInner() {
                         >
                           {Math.round(result.score * 100)}%
                         </Badge>
+                        <Badge
+                          variant="outline"
+                          className="text-xs shrink-0"
+                        >
+                          {isText ? "Text" : "OCR"}
+                        </Badge>
                       </div>
                       <p className="text-sm text-muted-foreground line-clamp-2 font-serif">
                         {result.matchedSnippet}
                       </p>
                       <div className="flex items-center gap-3 mt-1.5">
                         <span className="text-xs text-muted-foreground">
-                          {result.blockCount} blocks
+                          {isText ? "text entry" : `${result.blockCount} blocks`}
                         </span>
-                        {result.matchedBlockIndices.length > 0 && (
+                        {!isText && result.matchedBlockIndices.length > 0 && (
                           <span className="text-xs text-fuchsia-600">
                             {result.matchedBlockIndices.length} matched
                           </span>
@@ -309,7 +342,7 @@ function SearchPageInner() {
             </svg>
             <p className="text-sm">Type a query and press Enter or click Search.</p>
             <p className="text-xs mt-1">
-              Searches by meaning across all processed OCR documents.
+              Searches by meaning across all your documents and text entries.
             </p>
           </div>
         )}
