@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { HistorySidebar } from "@/components/history-sidebar";
@@ -10,6 +10,7 @@ import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { splitTextIntoParagraphs } from "@/lib/text-utils";
 import type { HistoryEntry } from "@/lib/types";
 
 export default function TextDetailPage() {
@@ -40,6 +41,16 @@ function TextDetailInner() {
 
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const showHistory = searchParams.get("history") === "1";
+
+  const searchQuery = searchParams.get("q") ?? "";
+  const paragraphsParam = searchParams.get("paragraphs") ?? "";
+  const highlightedParagraphs = useMemo(() => {
+    if (!paragraphsParam) return new Set<number>();
+    return new Set(
+      paragraphsParam.split(",").map(Number).filter((n) => !isNaN(n))
+    );
+  }, [paragraphsParam]);
+  const isFromSearch = searchQuery.length > 0;
 
   const [punctuating, setPunctuating] = useState(false);
   const [punctuationChanges, setPunctuationChanges] = useState<PunctuationChange[]>([]);
@@ -354,21 +365,42 @@ function TextDetailInner() {
                   </div>
                 </div>
 
+                {isFromSearch && (
+                  <SearchHighlightBanner
+                    query={searchQuery}
+                    matchCount={highlightedParagraphs.size}
+                  />
+                )}
+
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  {/* Left: Text editor */}
+                  {/* Left: Text view — highlighted paragraphs when from search, otherwise editor */}
                   <Card className="flex flex-col p-0 overflow-hidden">
-                    <div className="p-3 border-b">
+                    <div className="p-3 border-b flex items-center justify-between">
                       <h3 className="text-sm font-medium text-muted-foreground">
-                        Document Text
+                        {isFromSearch ? "Document Text (matched highlighted)" : "Document Text"}
                       </h3>
+                      {isFromSearch && (
+                        <Link href={`/text/${id}`}>
+                          <Button variant="ghost" size="sm" className="h-7 text-xs">
+                            Exit search view
+                          </Button>
+                        </Link>
+                      )}
                     </div>
                     <div className="flex-1 p-4">
-                      <Textarea
-                        value={text}
-                        onChange={(e) => handleTextChange(e.target.value)}
-                        className="min-h-[500px] resize-y text-base leading-relaxed font-serif"
-                        placeholder="Text content..."
-                      />
+                      {isFromSearch ? (
+                        <HighlightedTextView
+                          text={text}
+                          highlightedParagraphs={highlightedParagraphs}
+                        />
+                      ) : (
+                        <Textarea
+                          value={text}
+                          onChange={(e) => handleTextChange(e.target.value)}
+                          className="min-h-[500px] resize-y text-base leading-relaxed font-serif"
+                          placeholder="Text content..."
+                        />
+                      )}
                     </div>
                   </Card>
 
@@ -505,5 +537,95 @@ function TextDetailInner() {
         </div>
       </div>
     </main>
+  );
+}
+
+function SearchHighlightBanner({
+  query,
+  matchCount,
+}: {
+  query: string;
+  matchCount: number;
+}) {
+  return (
+    <div className="rounded-lg border border-fuchsia-200 bg-fuchsia-50/60 px-4 py-2.5 flex items-center gap-3">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="text-fuchsia-500 shrink-0"
+      >
+        <circle cx="11" cy="11" r="8" />
+        <path d="m21 21-4.3-4.3" />
+      </svg>
+      <span className="text-sm">
+        Search: <strong className="font-semibold">{query}</strong>
+      </span>
+      {matchCount > 0 && (
+        <Badge variant="outline" className="text-xs text-fuchsia-600 border-fuchsia-300">
+          {matchCount} matched paragraph{matchCount !== 1 ? "s" : ""}
+        </Badge>
+      )}
+    </div>
+  );
+}
+
+function HighlightedTextView({
+  text,
+  highlightedParagraphs,
+}: {
+  text: string;
+  highlightedParagraphs: Set<number>;
+}) {
+  const paragraphs = useMemo(() => splitTextIntoParagraphs(text), [text]);
+  const highlightRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  useEffect(() => {
+    if (highlightedParagraphs.size === 0) return;
+    const firstIdx = Math.min(...highlightedParagraphs);
+    const el = highlightRefs.current[firstIdx];
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [highlightedParagraphs]);
+
+  if (paragraphs.length === 0) {
+    return (
+      <p className="text-sm text-muted-foreground italic">No text content.</p>
+    );
+  }
+
+  return (
+    <ScrollArea className="min-h-[500px] max-h-[700px]">
+      <div className="flex flex-col gap-1">
+        {paragraphs.map((p, i) => {
+          const isHighlighted = highlightedParagraphs.has(i);
+          return (
+            <div
+              key={i}
+              ref={(el) => { highlightRefs.current[i] = el; }}
+              className={
+                isHighlighted
+                  ? "rounded-md bg-fuchsia-100 border-l-[3px] border-fuchsia-500 px-3 py-2 text-base leading-relaxed font-serif transition-colors"
+                  : "px-3 py-2 text-base leading-relaxed font-serif text-muted-foreground"
+              }
+            >
+              {isHighlighted && (
+                <span className="text-[10px] font-mono text-fuchsia-400 mr-1.5">
+                  [{i}]
+                </span>
+              )}
+              {p}
+            </div>
+          );
+        })}
+      </div>
+    </ScrollArea>
   );
 }

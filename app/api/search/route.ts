@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAllHistory } from "@/lib/history";
 import { getGeminiClient } from "@/lib/gemini";
+import { splitTextIntoParagraphs } from "@/lib/text-utils";
 
 const MODEL_NAME = "gemini-3-flash-preview";
 
@@ -38,13 +39,13 @@ export async function POST(request: NextRequest) {
         const hasBlocks = e.blocks.length > 0;
         const blocks = hasBlocks
           ? e.blocks.map((b, i) => ({ index: i, text: b.text }))
-          : [{ index: 0, text: e.rawText!.trim() }];
+          : splitTextIntoParagraphs(e.rawText!).map((p, i) => ({ index: i, text: p }));
         return {
           id: e.id,
           kind: e.kind,
           filename: e.filename,
           blocks,
-          blockCount: hasBlocks ? e.blocks.length : 1,
+          blockCount: blocks.length,
           updatedAt: e.updatedAt,
         };
       });

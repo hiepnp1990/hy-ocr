@@ -245,7 +245,7 @@ function SearchPageInner() {
             {results.map((result) => {
               const isText = result.kind === "text";
               const detailHref = isText
-                ? `/text/${result.id}`
+                ? `/text/${result.id}?q=${encodeURIComponent(query)}&paragraphs=${result.matchedBlockIndices.join(",")}`
                 : `/search/${result.id}?q=${encodeURIComponent(query)}&blocks=${result.matchedBlockIndices.join(",")}`;
               return (
               <Link key={result.id} href={detailHref}>
@@ -306,9 +306,9 @@ function SearchPageInner() {
                       </p>
                       <div className="flex items-center gap-3 mt-1.5">
                         <span className="text-xs text-muted-foreground">
-                          {isText ? "text entry" : `${result.blockCount} blocks`}
+                          {isText ? `${result.blockCount} paragraph${result.blockCount !== 1 ? "s" : ""}` : `${result.blockCount} blocks`}
                         </span>
-                        {!isText && result.matchedBlockIndices.length > 0 && (
+                        {result.matchedBlockIndices.length > 0 && (
                           <span className="text-xs text-fuchsia-600">
                             {result.matchedBlockIndices.length} matched
                           </span>
