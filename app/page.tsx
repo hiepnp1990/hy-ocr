@@ -87,6 +87,11 @@ function HomeInner() {
         const data = await res.json();
         if (data.entry) {
           setActiveHistoryId(data.entry.id);
+          fetch("/api/graph/ingest", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ entryId: data.entry.id }),
+          }).catch(() => {});
         }
         await loadHistory();
       } catch {

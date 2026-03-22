@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { join } from "path";
 import { getGeminiClient } from "./gemini";
-import { getAllHistory } from "./history";
+import { getAllHistory, getHistoryEntry } from "./history";
 import type { KnowledgeGraph, GraphNode, GraphEdge, HistoryEntry } from "./types";
 
 const DATA_DIR = join(process.cwd(), ".data");
@@ -49,65 +49,7 @@ Return ONLY valid JSON (no markdown fencing, no extra text):
 
 `;
 
-function collectAllOCRText(entries: HistoryEntry[]): { text: string; entryIds: string[] } {
-  const entryIds: string[] = [];
-  const sections: string[] = [];
-
-  for (const entry of entries) {
-    if (entry.blocks.length === 0) continue;
-    entryIds.push(entry.id);
-    const docText = entry.blocks.map((b) => b.text).join("\n");
-    sections.push(`【文獻: ${entry.filename}】\n${docText}`);
-  }
-
-  return { text: sections.join("\n\n---\n\n"), entryIds };
-}
-
-export async function extractKnowledgeGraph(
-  entryIds?: string[]
-): Promise<KnowledgeGraph> {
-  const allEntries = getAllHistory();
-  const entries = entryIds
-    ? allEntries.filter((e) => entryIds.includes(e.id))
-    : allEntries;
-
-  if (entries.length === 0) {
-    throw new Error("No OCR entries found to extract from");
-  }
-
-  const { text, entryIds: sourceIds } = collectAllOCRText(entries);
-
-  const genAI = getGeminiClient();
-  const model = genAI.getGenerativeModel({ model: MODEL_NAME });
-
-  const result = await model.generateContent([
-    { text: EXTRACTION_PROMPT + text },
-  ]);
-
-  const response = result.response;
-  const raw = response
-    .text()
-    .replace(/```json\s*/g, "")
-    .replace(/```\s*/g, "")
-    .trim();
-
-  const parsed = JSON.parse(raw) as { nodes: GraphNode[]; edges: GraphEdge[] };
-
-  const nodes = parsed.nodes.map((n) => ({
-    ...n,
-    sourceEntryIds: sourceIds,
-  }));
-
-  const graph: KnowledgeGraph = {
-    nodes,
-    edges: parsed.edges,
-    extractedAt: new Date().toISOString(),
-    sourceEntryIds: sourceIds,
-  };
-
-  saveGraph(graph);
-  return graph;
-}
+/* ── Storage ── */
 
 export function getStoredGraph(): KnowledgeGraph | null {
   if (!existsSync(GRAPH_FILE)) return null;
@@ -118,4 +60,170 @@ export function getStoredGraph(): KnowledgeGraph | null {
 function saveGraph(graph: KnowledgeGraph) {
   mkdirSync(DATA_DIR, { recursive: true });
   writeFileSync(GRAPH_FILE, JSON.stringify(graph, null, 2), "utf-8");
+}
+
+function emptyGraph(): KnowledgeGraph {
+  return { nodes: [], edges: [], extractedAt: new Date().toISOString(), sourceEntryIds: [] };
+}
+
+/* ── LLM extraction (single entry) ── */
+
+function entryToText(entry: HistoryEntry): string {
+  return entry.blocks.map((b) => b.text).join("\n");
+}
+
+/**
+ * Call Gemini to extract entities and relationships from a single entry's text.
+ * Pure LLM call — no storage side effects.
+ */
+export async function extractForEntry(
+  entry: HistoryEntry
+): Promise<{ nodes: GraphNode[]; edges: GraphEdge[] }> {
+  if (entry.blocks.length === 0) {
+    return { nodes: [], edges: [] };
+  }
+
+  const text = `【文獻: ${entry.filename}】\n${entryToText(entry)}`;
+
+  const genAI = getGeminiClient();
+  const model = genAI.getGenerativeModel({ model: MODEL_NAME });
+
+  const result = await model.generateContent([
+    { text: EXTRACTION_PROMPT + text },
+  ]);
+
+  const raw = result.response
+    .text()
+    .replace(/```json\s*/g, "")
+    .replace(/```\s*/g, "")
+    .trim();
+
+  const parsed = JSON.parse(raw) as { nodes: GraphNode[]; edges: GraphEdge[] };
+
+  const nodes = parsed.nodes.map((n) => ({
+    ...n,
+    sourceEntryIds: [entry.id],
+  }));
+
+  return { nodes, edges: parsed.edges };
+}
+
+/* ── Merge logic (pure, no LLM) ── */
+
+/**
+ * Merge new nodes and edges into an existing graph.
+ * - Nodes are deduped by id; if a node already exists, its sourceEntryIds are unioned.
+ * - Edges are deduped by (source, target, relation).
+ * Saves the result and returns the updated graph.
+ */
+export function mergeIntoGraph(
+  incoming: { nodes: GraphNode[]; edges: GraphEdge[] },
+  entryId: string,
+  existing?: KnowledgeGraph | null
+): KnowledgeGraph {
+  const graph = existing ?? getStoredGraph() ?? emptyGraph();
+
+  const nodeMap = new Map<string, GraphNode>();
+  for (const node of graph.nodes) {
+    nodeMap.set(node.id, { ...node });
+  }
+  for (const node of incoming.nodes) {
+    const prev = nodeMap.get(node.id);
+    if (prev) {
+      const ids = new Set([...prev.sourceEntryIds, ...node.sourceEntryIds]);
+      nodeMap.set(node.id, {
+        ...prev,
+        description: node.description || prev.description,
+        sourceEntryIds: [...ids],
+      });
+    } else {
+      nodeMap.set(node.id, { ...node });
+    }
+  }
+
+  const edgeKey = (e: GraphEdge) => `${e.source}::${e.target}::${e.relation}`;
+  const edgeMap = new Map<string, GraphEdge>();
+  for (const edge of graph.edges) {
+    edgeMap.set(edgeKey(edge), edge);
+  }
+  for (const edge of incoming.edges) {
+    const key = edgeKey(edge);
+    if (!edgeMap.has(key)) {
+      edgeMap.set(key, edge);
+    }
+  }
+
+  const sourceIds = new Set([...graph.sourceEntryIds, entryId]);
+
+  const updated: KnowledgeGraph = {
+    nodes: [...nodeMap.values()],
+    edges: [...edgeMap.values()],
+    extractedAt: new Date().toISOString(),
+    sourceEntryIds: [...sourceIds],
+  };
+
+  saveGraph(updated);
+  return updated;
+}
+
+/* ── High-level operations ── */
+
+/**
+ * Ingest a single entry: extract its entities via Gemini, then merge into the stored graph.
+ */
+export async function ingestEntry(entryId: string): Promise<KnowledgeGraph> {
+  const entry = getHistoryEntry(entryId);
+  if (!entry) throw new Error(`Entry not found: ${entryId}`);
+
+  const stored = getStoredGraph();
+  if (stored?.sourceEntryIds.includes(entryId)) {
+    return stored;
+  }
+
+  const extracted = await extractForEntry(entry);
+  return mergeIntoGraph(extracted, entryId);
+}
+
+/**
+ * Full rebuild: extract from all history entries in one Gemini call and replace the graph.
+ */
+export async function rebuildGraph(entryIds?: string[]): Promise<KnowledgeGraph> {
+  const allEntries = getAllHistory();
+  const entries = entryIds
+    ? allEntries.filter((e) => entryIds.includes(e.id))
+    : allEntries;
+
+  if (entries.length === 0) {
+    throw new Error("No OCR entries found to extract from");
+  }
+
+  const sections = entries
+    .filter((e) => e.blocks.length > 0)
+    .map((e) => `【文獻: ${e.filename}】\n${entryToText(e)}`);
+  const sourceIds = entries.filter((e) => e.blocks.length > 0).map((e) => e.id);
+
+  const genAI = getGeminiClient();
+  const model = genAI.getGenerativeModel({ model: MODEL_NAME });
+
+  const result = await model.generateContent([
+    { text: EXTRACTION_PROMPT + sections.join("\n\n---\n\n") },
+  ]);
+
+  const raw = result.response
+    .text()
+    .replace(/```json\s*/g, "")
+    .replace(/```\s*/g, "")
+    .trim();
+
+  const parsed = JSON.parse(raw) as { nodes: GraphNode[]; edges: GraphEdge[] };
+
+  const graph: KnowledgeGraph = {
+    nodes: parsed.nodes.map((n) => ({ ...n, sourceEntryIds: sourceIds })),
+    edges: parsed.edges,
+    extractedAt: new Date().toISOString(),
+    sourceEntryIds: sourceIds,
+  };
+
+  saveGraph(graph);
+  return graph;
 }

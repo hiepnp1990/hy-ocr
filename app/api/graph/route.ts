@@ -1,5 +1,9 @@
-import { extractKnowledgeGraph, getStoredGraph } from "@/lib/knowledge-graph";
+import { rebuildGraph, getStoredGraph } from "@/lib/knowledge-graph";
 
+/**
+ * GET /api/graph
+ * Return the stored knowledge graph.
+ */
 export async function GET() {
   const graph = getStoredGraph();
   if (!graph) {
@@ -8,12 +12,17 @@ export async function GET() {
   return Response.json({ success: true, graph });
 }
 
+/**
+ * POST /api/graph
+ * Full rebuild: extract from all (or selected) history entries and replace the graph.
+ * Body: { entryIds?: string[] }
+ */
 export async function POST(request: Request) {
   try {
     const body = await request.json().catch(() => ({}));
     const entryIds: string[] | undefined = body.entryIds;
 
-    const graph = await extractKnowledgeGraph(entryIds);
+    const graph = await rebuildGraph(entryIds);
     return Response.json({ success: true, graph });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
