@@ -43,3 +43,36 @@ export interface HistoryEntry {
 export interface HistoryIndex {
   entries: HistoryEntry[];
 }
+
+/* ── Knowledge Graph ── */
+
+export type EntityType =
+  | "PERSON"
+  | "PLACE"
+  | "WORK"
+  | "ERA"
+  | "TITLE"
+  | "EVENT"
+  | "CONCEPT";
+
+export interface GraphNode {
+  id: string;
+  label: string;
+  type: EntityType;
+  description?: string;
+  sourceEntryIds: string[];
+}
+
+export interface GraphEdge {
+  source: string;
+  target: string;
+  relation: string;
+  description?: string;
+}
+
+export interface KnowledgeGraph {
+  nodes: GraphNode[];
+  edges: GraphEdge[];
+  extractedAt: string;
+  sourceEntryIds: string[];
+}
