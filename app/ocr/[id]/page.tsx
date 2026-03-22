@@ -1,15 +1,17 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { OCRWorkspace } from "@/components/ocr-workspace";
+import { HistorySidebar } from "@/components/history-sidebar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { OCRBlock, HistoryEntry } from "@/lib/types";
 
 export default function OCRDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const id = params.id as string;
 
   const [entry, setEntry] = useState<HistoryEntry | null>(null);
@@ -17,7 +19,26 @@ export default function OCRDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+
+  const loadHistory = useCallback(async () => {
+    try {
+      const res = await fetch("/api/history");
+      const data = await res.json();
+      setHistory(data.entries ?? []);
+    } catch {
+      /* silent */
+    }
+  }, []);
+
   useEffect(() => {
+    loadHistory();
+  }, [loadHistory]);
+
+  useEffect(() => {
+    setLoading(true);
+    setError(null);
     (async () => {
       try {
         const res = await fetch(`/api/history/${id}`);
@@ -52,6 +73,30 @@ export default function OCRDetailPage() {
       }
     },
     [id]
+  );
+
+  const handleLoadFromHistory = useCallback(
+    (historyEntry: HistoryEntry) => {
+      if (historyEntry.id !== id) {
+        router.push(`/ocr/${historyEntry.id}`);
+      }
+    },
+    [id, router]
+  );
+
+  const handleDeleteFromHistory = useCallback(
+    async (deleteId: string) => {
+      try {
+        await fetch(`/api/history/${deleteId}`, { method: "DELETE" });
+        await loadHistory();
+        if (deleteId === id) {
+          router.push("/");
+        }
+      } catch {
+        /* silent */
+      }
+    },
+    [id, loadHistory, router]
   );
 
   return (
@@ -147,6 +192,34 @@ export default function OCRDetailPage() {
                 Search
               </Button>
             </Link>
+            <Button
+              variant={showHistory ? "secondary" : "outline"}
+              size="sm"
+              onClick={() => setShowHistory((v) => !v)}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="mr-1.5"
+              >
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                <path d="M3 3v5h5" />
+                <path d="M12 7v5l4 2" />
+              </svg>
+              History
+              {history.length > 0 && (
+                <span className="ml-1 text-xs text-muted-foreground">
+                  ({history.length})
+                </span>
+              )}
+            </Button>
             <Link href="/">
               <Button variant="outline" size="sm">
                 <svg
@@ -171,28 +244,40 @@ export default function OCRDetailPage() {
         </div>
       </header>
 
-      <div className="flex-1 overflow-auto">
-        <div className="max-w-7xl mx-auto w-full px-4 py-6">
-          {loading && (
-            <div className="text-center py-12 text-muted-foreground">
-              <p className="text-sm">Loading document...</p>
-            </div>
-          )}
+      <div className="flex flex-1 min-h-0">
+        {showHistory && (
+          <HistorySidebar
+            entries={history}
+            activeEntryId={id}
+            onLoad={handleLoadFromHistory}
+            onDelete={handleDeleteFromHistory}
+            onClose={() => setShowHistory(false)}
+          />
+        )}
 
-          {error && (
-            <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm border border-destructive/20">
-              {error}
-            </div>
-          )}
+        <div className="flex-1 overflow-auto">
+          <div className="max-w-7xl mx-auto w-full px-4 py-6">
+            {loading && (
+              <div className="text-center py-12 text-muted-foreground">
+                <p className="text-sm">Loading document...</p>
+              </div>
+            )}
 
-          {!loading && entry && (
-            <OCRWorkspace
-              imageUrl={`/api/history/${entry.id}/image`}
-              blocks={blocks}
-              onBlocksChange={handleBlocksChange}
-              modelName={entry.modelName}
-            />
-          )}
+            {error && (
+              <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm border border-destructive/20">
+                {error}
+              </div>
+            )}
+
+            {!loading && entry && (
+              <OCRWorkspace
+                imageUrl={`/api/history/${entry.id}/image`}
+                blocks={blocks}
+                onBlocksChange={handleBlocksChange}
+                modelName={entry.modelName}
+              />
+            )}
+          </div>
         </div>
       </div>
     </main>
