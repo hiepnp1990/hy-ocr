@@ -49,7 +49,17 @@ function HomeInner() {
   useEffect(() => {
     const loadId = searchParams.get("load");
     if (!loadId) return;
-    router.replace(`/ocr/${loadId}`);
+    (async () => {
+      try {
+        const res = await fetch(`/api/history/${loadId}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const route = data.entry?.kind === "text" ? "text" : "ocr";
+        router.replace(`/${route}/${loadId}`);
+      } catch {
+        router.replace(`/ocr/${loadId}`);
+      }
+    })();
   }, [searchParams, router]);
 
   const saveToHistory = useCallback(
@@ -98,6 +108,26 @@ function HomeInner() {
     []
   );
 
+  const handleTextSelected = useCallback(
+    async (text: string, filename: string) => {
+      try {
+        const res = await fetch("/api/history", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ kind: "text", filename, rawText: text }),
+        });
+        const data = await res.json();
+        if (data.entry) {
+          await loadHistory();
+          router.push(`/text/${data.entry.id}`);
+        }
+      } catch {
+        setError("Failed to save text file");
+      }
+    },
+    [loadHistory, router]
+  );
+
   const handleRunOCR = useCallback(async () => {
     if (!imageUrl) return;
     setIsProcessing(true);
@@ -143,7 +173,9 @@ function HomeInner() {
   }, []);
 
   const handleLoadFromHistory = useCallback((entry: HistoryEntry) => {
-    if (entry.blocks.length > 0) {
+    if (entry.kind === "text") {
+      router.push(`/text/${entry.id}`);
+    } else if (entry.blocks.length > 0) {
       router.push(`/ocr/${entry.id}`);
     } else {
       setImageUrl(`/api/history/${entry.id}/image`);
@@ -351,6 +383,7 @@ function HomeInner() {
                 </div>
                 <ImageUpload
                   onImageSelected={handleImageSelected}
+                  onTextSelected={handleTextSelected}
                   disabled={isProcessing}
                 />
               </div>

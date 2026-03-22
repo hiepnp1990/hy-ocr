@@ -30,13 +30,18 @@ export interface OCRResponse {
   error?: string;
 }
 
+export type EntryKind = "ocr" | "text";
+
 export interface HistoryEntry {
   id: string;
+  kind: EntryKind;
   filename: string;
   mimeType: string;
-  /** Relative path to the saved image inside the data dir */
+  /** Relative path to the saved image inside the data dir (ocr entries only) */
   imagePath: string;
   blocks: OCRBlock[];
+  /** Raw text content (text entries only) */
+  rawText?: string;
   modelName?: string;
   createdAt: string;
   updatedAt: string;

@@ -69,6 +69,7 @@ function emptyGraph(): KnowledgeGraph {
 /* ── LLM extraction (single entry) ── */
 
 function entryToText(entry: HistoryEntry): string {
+  if (entry.rawText) return entry.rawText;
   return entry.blocks.map((b) => b.text).join("\n");
 }
 
@@ -79,11 +80,12 @@ function entryToText(entry: HistoryEntry): string {
 export async function extractForEntry(
   entry: HistoryEntry
 ): Promise<{ nodes: GraphNode[]; edges: GraphEdge[] }> {
-  if (entry.blocks.length === 0) {
+  const content = entryToText(entry);
+  if (!content.trim()) {
     return { nodes: [], edges: [] };
   }
 
-  const text = `【文獻: ${entry.filename}】\n${entryToText(entry)}`;
+  const text = `【文獻: ${entry.filename}】\n${content}`;
 
   const genAI = getGeminiClient();
   const model = genAI.getGenerativeModel({ model: MODEL_NAME });
@@ -197,10 +199,11 @@ export async function rebuildGraph(entryIds?: string[]): Promise<KnowledgeGraph>
     throw new Error("No OCR entries found to extract from");
   }
 
+  const hasContent = (e: HistoryEntry) => e.blocks.length > 0 || !!e.rawText?.trim();
   const sections = entries
-    .filter((e) => e.blocks.length > 0)
+    .filter(hasContent)
     .map((e) => `【文獻: ${e.filename}】\n${entryToText(e)}`);
-  const sourceIds = entries.filter((e) => e.blocks.length > 0).map((e) => e.id);
+  const sourceIds = entries.filter(hasContent).map((e) => e.id);
 
   const genAI = getGeminiClient();
   const model = genAI.getGenerativeModel({ model: MODEL_NAME });

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getHistoryEntry, deleteHistoryEntry, updateHistoryBlocks } from "@/lib/history";
+import { getHistoryEntry, deleteHistoryEntry, updateHistoryBlocks, updateHistoryText } from "@/lib/history";
 
 export async function GET(
   _request: NextRequest,
@@ -19,6 +19,15 @@ export async function PUT(
 ) {
   const { id } = await params;
   const body = await request.json();
+
+  if (typeof body.rawText === "string") {
+    const entry = updateHistoryText(id, body.rawText);
+    if (!entry) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+    return NextResponse.json({ entry });
+  }
+
   const entry = updateHistoryBlocks(id, body.blocks);
   if (!entry) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });

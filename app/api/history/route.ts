@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAllHistory, saveHistoryEntry } from "@/lib/history";
+import { getAllHistory, saveHistoryEntry, saveTextEntry } from "@/lib/history";
 
 export async function GET() {
   const entries = getAllHistory();
@@ -9,8 +9,21 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { filename, mimeType, image, blocks, modelName } = body;
+    const { kind } = body;
 
+    if (kind === "text") {
+      const { filename, rawText } = body;
+      if (!filename || typeof rawText !== "string") {
+        return NextResponse.json(
+          { error: "Missing filename or rawText" },
+          { status: 400 }
+        );
+      }
+      const entry = saveTextEntry(filename, rawText);
+      return NextResponse.json({ entry });
+    }
+
+    const { filename, mimeType, image, blocks, modelName } = body;
     if (!filename || !mimeType || !image || !blocks) {
       return NextResponse.json(
         { error: "Missing required fields" },

@@ -6,16 +6,26 @@ import { Button } from "@/components/ui/button";
 
 interface ImageUploadProps {
   onImageSelected: (dataUrl: string, mimeType: string, filename?: string) => void;
+  onTextSelected?: (text: string, filename: string) => void;
   disabled?: boolean;
 }
 
-export function ImageUpload({ onImageSelected, disabled }: ImageUploadProps) {
+export function ImageUpload({ onImageSelected, onTextSelected, disabled }: ImageUploadProps) {
   const [isDragging, setIsDragging] = useState(false);
 
   const handleFile = useCallback(
     (file: File) => {
+      if (file.name.endsWith(".txt") || file.type === "text/plain") {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const text = e.target?.result as string;
+          onTextSelected?.(text, file.name);
+        };
+        reader.readAsText(file);
+        return;
+      }
       if (!file.type.match(/^image\/(jpeg|png)$/)) {
-        alert("Please upload a JPG or PNG image.");
+        alert("Please upload a JPG, PNG image, or TXT file.");
         return;
       }
       const reader = new FileReader();
@@ -25,7 +35,7 @@ export function ImageUpload({ onImageSelected, disabled }: ImageUploadProps) {
       };
       reader.readAsDataURL(file);
     },
-    [onImageSelected]
+    [onImageSelected, onTextSelected]
   );
 
   const handleDrop = useCallback(
@@ -51,7 +61,7 @@ export function ImageUpload({ onImageSelected, disabled }: ImageUploadProps) {
   const handleClick = useCallback(() => {
     const input = document.createElement("input");
     input.type = "file";
-    input.accept = "image/jpeg,image/png";
+    input.accept = "image/jpeg,image/png,.txt,text/plain";
     input.onchange = (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (file) handleFile(file);
@@ -91,10 +101,10 @@ export function ImageUpload({ onImageSelected, disabled }: ImageUploadProps) {
       </div>
       <div className="text-center">
         <p className="text-lg font-medium">
-          Drop your scanned image here
+          Drop your file here
         </p>
         <p className="text-sm text-muted-foreground mt-1">
-          Supports JPG and PNG files
+          Supports JPG, PNG images and TXT files
         </p>
       </div>
       <Button variant="secondary" size="sm" disabled={disabled}>

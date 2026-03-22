@@ -16,7 +16,11 @@ function readIndex(): HistoryIndex {
     return { entries: [] };
   }
   const raw = readFileSync(INDEX_FILE, "utf-8");
-  return JSON.parse(raw) as HistoryIndex;
+  const idx = JSON.parse(raw) as HistoryIndex;
+  for (const e of idx.entries) {
+    if (!e.kind) e.kind = "ocr";
+  }
+  return idx;
 }
 
 function writeIndex(index: HistoryIndex) {
@@ -78,6 +82,7 @@ export function saveHistoryEntry(
 
   const entry: HistoryEntry = {
     id: imageHash,
+    kind: "ocr",
     filename,
     mimeType,
     imagePath: `images/${imageFilename}`,
@@ -88,6 +93,51 @@ export function saveHistoryEntry(
   };
 
   index.entries.push(entry);
+  writeIndex(index);
+  return entry;
+}
+
+export function saveTextEntry(
+  filename: string,
+  rawText: string
+): HistoryEntry {
+  ensureDirs();
+  const index = readIndex();
+  const textHash = hashString(rawText.slice(0, 2000));
+  const existing = index.entries.find((e) => e.id === textHash);
+  const now = new Date().toISOString();
+
+  if (existing) {
+    existing.rawText = rawText;
+    existing.updatedAt = now;
+    existing.filename = filename;
+    writeIndex(index);
+    return existing;
+  }
+
+  const entry: HistoryEntry = {
+    id: textHash,
+    kind: "text",
+    filename,
+    mimeType: "text/plain",
+    imagePath: "",
+    blocks: [],
+    rawText,
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  index.entries.push(entry);
+  writeIndex(index);
+  return entry;
+}
+
+export function updateHistoryText(id: string, rawText: string): HistoryEntry | null {
+  const index = readIndex();
+  const entry = index.entries.find((e) => e.id === id);
+  if (!entry) return null;
+  entry.rawText = rawText;
+  entry.updatedAt = new Date().toISOString();
   writeIndex(index);
   return entry;
 }

@@ -148,13 +148,23 @@ export function HistorySidebar({
                 onClick={() => onLoad(entry)}
               >
                 {/* Thumbnail */}
-                <div className="w-12 h-12 rounded-md overflow-hidden bg-muted shrink-0">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={`/api/history/${entry.id}/image`}
-                    alt={entry.filename}
-                    className="w-full h-full object-cover"
-                  />
+                <div className="w-12 h-12 rounded-md overflow-hidden bg-muted shrink-0 flex items-center justify-center">
+                  {entry.kind === "text" ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" />
+                      <path d="M14 2v6h6" />
+                      <path d="M16 13H8" />
+                      <path d="M16 17H8" />
+                      <path d="M10 9H8" />
+                    </svg>
+                  ) : (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={`/api/history/${entry.id}/image`}
+                      alt={entry.filename}
+                      className="w-full h-full object-cover"
+                    />
+                  )}
                 </div>
 
                 <div className="flex-1 min-w-0">
@@ -163,7 +173,7 @@ export function HistorySidebar({
                   </p>
                   <div className="flex items-center gap-2 mt-0.5">
                     <span className="text-xs text-muted-foreground">
-                      {entry.blocks.length} blocks
+                      {entry.kind === "text" ? "text" : `${entry.blocks.length} blocks`}
                     </span>
                     <span className="text-xs text-muted-foreground">
                       {timeAgo(entry.updatedAt)}

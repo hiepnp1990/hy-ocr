@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { Suspense, useCallback, useEffect, useState } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { OCRWorkspace } from "@/components/ocr-workspace";
 import { HistorySidebar } from "@/components/history-sidebar";
@@ -10,8 +10,17 @@ import { Badge } from "@/components/ui/badge";
 import type { OCRBlock, HistoryEntry } from "@/lib/types";
 
 export default function OCRDetailPage() {
+  return (
+    <Suspense>
+      <OCRDetailInner />
+    </Suspense>
+  );
+}
+
+function OCRDetailInner() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const id = params.id as string;
 
   const [entry, setEntry] = useState<HistoryEntry | null>(null);
@@ -20,7 +29,15 @@ export default function OCRDetailPage() {
   const [error, setError] = useState<string | null>(null);
 
   const [history, setHistory] = useState<HistoryEntry[]>([]);
-  const [showHistory, setShowHistory] = useState(false);
+  const showHistory = searchParams.get("history") === "1";
+
+  const setShowHistory = useCallback(
+    (show: boolean) => {
+      const url = show ? `/ocr/${id}?history=1` : `/ocr/${id}`;
+      router.replace(url, { scroll: false });
+    },
+    [id, router]
+  );
 
   const loadHistory = useCallback(async () => {
     try {
@@ -77,9 +94,11 @@ export default function OCRDetailPage() {
 
   const handleLoadFromHistory = useCallback(
     (historyEntry: HistoryEntry) => {
-      if (historyEntry.id !== id) {
-        router.push(`/ocr/${historyEntry.id}`);
-      }
+      if (historyEntry.id === id) return;
+      const route = historyEntry.kind === "text"
+        ? `/text/${historyEntry.id}`
+        : `/ocr/${historyEntry.id}`;
+      router.push(`${route}?history=1`);
     },
     [id, router]
   );
@@ -195,7 +214,7 @@ export default function OCRDetailPage() {
             <Button
               variant={showHistory ? "secondary" : "outline"}
               size="sm"
-              onClick={() => setShowHistory((v) => !v)}
+              onClick={() => setShowHistory(!showHistory)}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
