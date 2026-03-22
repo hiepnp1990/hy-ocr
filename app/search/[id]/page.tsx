@@ -75,50 +75,35 @@ function SearchDetailInner() {
 
   return (
     <main className="flex flex-col min-h-screen">
-      <header className="border-b bg-card">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="text-primary"
-              >
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" />
-                <path d="M14 2v6h6" />
-                <path d="M16 13H8" />
-                <path d="M16 17H8" />
-                <path d="M10 9H8" />
-              </svg>
-              <h1 className="text-lg font-bold tracking-tight">
+      <header className="border-b-2 border-border bg-card/80 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+              <div className="seal-stamp text-lg">
+                文
+              </div>
+              <h1 className="text-2xl font-bold tracking-wide" style={{ fontFamily: "var(--font-heading)" }}>
                 玩轉古文
               </h1>
             </Link>
-            <span className="text-xs text-muted-foreground hidden sm:inline">
+            <span className="text-sm text-muted-foreground hidden sm:inline">
               Powered by Gemini
             </span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <Link href={`/search${query ? `?q=${encodeURIComponent(query)}` : ""}`}>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="default">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
+                  width="18"
+                  height="18"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="mr-1.5"
+                  className="mr-2"
                 >
                   <path d="m12 19-7-7 7-7" />
                   <path d="M19 12H5" />
@@ -131,34 +116,34 @@ function SearchDetailInner() {
       </header>
 
       {query && (
-        <div className="border-b bg-fuchsia-50/50">
-          <div className="max-w-7xl mx-auto px-4 py-2 flex items-center gap-3">
+        <div className="border-b-2 bg-gold/10">
+          <div className="max-w-7xl mx-auto px-6 py-3 flex items-center gap-4">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="14"
-              height="14"
+              width="18"
+              height="18"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="text-fuchsia-500 shrink-0"
+              className="text-gold shrink-0"
             >
               <circle cx="11" cy="11" r="8" />
               <path d="m21 21-4.3-4.3" />
             </svg>
-            <span className="text-sm">
+            <span className="text-base">
               Search: <strong className="font-semibold">{query}</strong>
             </span>
             {matchCount > 0 && (
-              <Badge variant="outline" className="text-xs text-fuchsia-600 border-fuchsia-300">
+              <Badge variant="outline" className="text-sm text-gold border-gold/40">
                 {matchCount} matched block{matchCount !== 1 ? "s" : ""}
               </Badge>
             )}
-            <div className="flex items-center gap-2 ml-auto">
+            <div className="flex items-center gap-3 ml-auto">
               {entry && (
-                <span className="text-xs text-muted-foreground">
+                <span className="text-sm text-muted-foreground">
                   {entry.filename}
                 </span>
               )}
@@ -166,7 +151,6 @@ function SearchDetailInner() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-7 text-xs"
                   onClick={() => {
                     const matched = blocks.filter((b) => highlightedBlockIds.has(b.id));
                     const text = matched.map((b) => b.text).join("\n\n");
@@ -181,15 +165,15 @@ function SearchDetailInner() {
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    width="12"
-                    height="12"
+                    width="16"
+                    height="16"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    className="mr-1"
+                    className="mr-2"
                   >
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                     <polyline points="7 10 12 15 17 10" />
@@ -204,15 +188,15 @@ function SearchDetailInner() {
       )}
 
       <div className="flex-1 overflow-auto">
-        <div className="max-w-7xl mx-auto w-full px-4 py-6">
+        <div className="max-w-7xl mx-auto w-full px-6 py-8">
           {loading && (
-            <div className="text-center py-12 text-muted-foreground">
-              <p className="text-sm">Loading document...</p>
+            <div className="text-center py-16 text-muted-foreground">
+              <p className="text-base">Loading document...</p>
             </div>
           )}
 
           {error && (
-            <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm border border-destructive/20">
+            <div className="mb-6 p-4 rounded-lg bg-destructive/10 text-destructive text-base border border-destructive/20">
               {error}
             </div>
           )}

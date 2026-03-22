@@ -1,11 +1,19 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Noto_Serif_SC, Ma_Shan_Zheng } from "next/font/google";
+import { Geist_Mono } from "next/font/google";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const notoSerifSC = Noto_Serif_SC({
+  variable: "--font-noto-serif-sc",
   subsets: ["latin"],
+  weight: ["400", "600", "700"],
+});
+
+const maShanZheng = Ma_Shan_Zheng({
+  variable: "--font-ma-shan-zheng",
+  subsets: ["latin"],
+  weight: "400",
 });
 
 const geistMono = Geist_Mono({
@@ -26,8 +34,9 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      lang="zh"
+      className={`${notoSerifSC.variable} ${maShanZheng.variable} ${geistMono.variable} h-full antialiased`}
+      style={{ "--font-sans": "'Noto Serif SC', 'KaiTi', 'STKaiti', serif" } as React.CSSProperties}
     >
       <body className="min-h-full flex flex-col">
         <TooltipProvider>{children}</TooltipProvider>

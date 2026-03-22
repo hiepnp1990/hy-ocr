@@ -67,7 +67,6 @@ function SearchPageInner() {
     if (initialQuery) {
       handleSearch();
     }
-    // only on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -82,50 +81,35 @@ function SearchPageInner() {
 
   return (
     <main className="flex flex-col min-h-screen">
-      <header className="border-b bg-card">
-        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="text-primary"
-              >
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" />
-                <path d="M14 2v6h6" />
-                <path d="M16 13H8" />
-                <path d="M16 17H8" />
-                <path d="M10 9H8" />
-              </svg>
-              <h1 className="text-lg font-bold tracking-tight">
+      <header className="border-b-2 border-border bg-card/80 backdrop-blur-sm">
+        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+              <div className="seal-stamp text-lg">
+                文
+              </div>
+              <h1 className="text-2xl font-bold tracking-wide" style={{ fontFamily: "var(--font-heading)" }}>
                 玩轉古文
               </h1>
             </Link>
-            <span className="text-xs text-muted-foreground hidden sm:inline">
+            <span className="text-sm text-muted-foreground hidden sm:inline">
               Powered by Gemini
             </span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <Link href="/">
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="default">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
+                  width="18"
+                  height="18"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="mr-1.5"
+                  className="mr-2"
                 >
                   <path d="m12 19-7-7 7-7" />
                   <path d="M19 12H5" />
@@ -137,29 +121,29 @@ function SearchPageInner() {
         </div>
       </header>
 
-      <div className="flex-1 max-w-4xl mx-auto w-full px-4 py-8">
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold tracking-tight mb-2">
+      <div className="flex-1 max-w-5xl mx-auto w-full px-6 py-10">
+        <div className="text-center mb-10">
+          <h2 className="text-3xl font-bold tracking-wide mb-3" style={{ fontFamily: "var(--font-heading)" }}>
             Semantic Search
           </h2>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-lg text-muted-foreground">
             Search across all your processed documents by meaning, themes, or content.
           </p>
         </div>
 
-        <div className="flex gap-2 mb-8">
+        <div className="flex gap-3 mb-10">
           <div className="relative flex-1">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
+              width="20"
+              height="20"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground"
             >
               <circle cx="11" cy="11" r="8" />
               <path d="m21 21-4.3-4.3" />
@@ -169,19 +153,19 @@ function SearchPageInner() {
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="E.g. 論語中關於仁的論述, poems about autumn, 道德經..."
-              className="pl-10 h-11 text-base"
+              className="pl-12 h-13 text-lg"
               disabled={isSearching}
             />
           </div>
           <Button
             onClick={handleSearch}
             disabled={isSearching || !query.trim()}
-            className="h-11 px-6"
+            className="h-13 px-8 text-base"
           >
             {isSearching ? (
               <>
                 <svg
-                  className="animate-spin mr-1.5 h-4 w-4"
+                  className="animate-spin mr-2 h-5 w-5"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
@@ -209,36 +193,36 @@ function SearchPageInner() {
         </div>
 
         {error && (
-          <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm border border-destructive/20">
+          <div className="mb-6 p-4 rounded-lg bg-destructive/10 text-destructive text-base border border-destructive/20">
             {error}
           </div>
         )}
 
         {hasSearched && results.length === 0 && !error && (
-          <div className="text-center py-12 text-muted-foreground">
+          <div className="text-center py-16 text-muted-foreground">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="40"
-              height="40"
+              width="48"
+              height="48"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
               strokeWidth="1.5"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="mx-auto mb-3 opacity-40"
+              className="mx-auto mb-4 opacity-40"
             >
               <circle cx="11" cy="11" r="8" />
               <path d="m21 21-4.3-4.3" />
             </svg>
-            <p className="text-sm">No matching documents found.</p>
-            <p className="text-xs mt-1">Try a different query or add more entries first.</p>
+            <p className="text-base">No matching documents found.</p>
+            <p className="text-sm mt-2">Try a different query or add more entries first.</p>
           </div>
         )}
 
         {results.length > 0 && (
-          <div className="space-y-3">
-            <p className="text-sm text-muted-foreground mb-4">
+          <div className="space-y-4">
+            <p className="text-base text-muted-foreground mb-5">
               {results.length} result{results.length !== 1 && "s"} found
             </p>
 
@@ -249,14 +233,14 @@ function SearchPageInner() {
                 : `/search/${result.id}?q=${encodeURIComponent(query)}&blocks=${result.matchedBlockIndices.join(",")}`;
               return (
               <Link key={result.id} href={detailHref}>
-                <Card className="p-4 hover:bg-muted/40 transition-colors cursor-pointer group">
-                  <div className="flex gap-4">
+                <Card className="p-5 hover:bg-muted/40 transition-colors cursor-pointer group">
+                  <div className="flex gap-5">
                     {isText ? (
-                      <div className="w-14 h-14 rounded-md bg-muted shrink-0 flex items-center justify-center">
+                      <div className="w-16 h-16 rounded-md bg-muted shrink-0 flex items-center justify-center">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
+                          width="28"
+                          height="28"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="currentColor"
@@ -273,7 +257,7 @@ function SearchPageInner() {
                         </svg>
                       </div>
                     ) : (
-                      <div className="w-14 h-14 rounded-md overflow-hidden bg-muted shrink-0">
+                      <div className="w-16 h-16 rounded-md overflow-hidden bg-muted shrink-0">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={`/api/history/${result.id}/image`}
@@ -284,32 +268,32 @@ function SearchPageInner() {
                     )}
 
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <p className="text-sm font-semibold truncate group-hover:text-primary transition-colors">
+                      <div className="flex items-center gap-3 mb-2">
+                        <p className="text-base font-semibold truncate group-hover:text-primary transition-colors">
                           {result.filename}
                         </p>
                         <Badge
                           variant="secondary"
-                          className="text-xs shrink-0 font-mono"
+                          className="text-sm shrink-0 font-mono"
                         >
                           {Math.round(result.score * 100)}%
                         </Badge>
                         <Badge
                           variant="outline"
-                          className="text-xs shrink-0"
+                          className="text-sm shrink-0"
                         >
                           {isText ? "Text" : "OCR"}
                         </Badge>
                       </div>
-                      <p className="text-sm text-muted-foreground line-clamp-2 font-serif">
+                      <p className="text-base text-muted-foreground line-clamp-2 font-serif">
                         {result.matchedSnippet}
                       </p>
-                      <div className="flex items-center gap-3 mt-1.5">
-                        <span className="text-xs text-muted-foreground">
+                      <div className="flex items-center gap-4 mt-2">
+                        <span className="text-sm text-muted-foreground">
                           {isText ? `${result.blockCount} paragraph${result.blockCount !== 1 ? "s" : ""}` : `${result.blockCount} blocks`}
                         </span>
                         {result.matchedBlockIndices.length > 0 && (
-                          <span className="text-xs text-fuchsia-600">
+                          <span className="text-sm text-gold">
                             {result.matchedBlockIndices.length} matched
                           </span>
                         )}
@@ -324,24 +308,24 @@ function SearchPageInner() {
         )}
 
         {!hasSearched && (
-          <div className="text-center py-12 text-muted-foreground">
+          <div className="text-center py-16 text-muted-foreground">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="40"
-              height="40"
+              width="48"
+              height="48"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
               strokeWidth="1.5"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="mx-auto mb-3 opacity-30"
+              className="mx-auto mb-4 opacity-30"
             >
               <circle cx="11" cy="11" r="8" />
               <path d="m21 21-4.3-4.3" />
             </svg>
-            <p className="text-sm">Type a query and press Enter or click Search.</p>
-            <p className="text-xs mt-1">
+            <p className="text-base">Type a query and press Enter or click Search.</p>
+            <p className="text-sm mt-2">
               Searches by meaning across all your documents and text entries.
             </p>
           </div>

@@ -27,24 +27,24 @@ export function DownloadButton({ blocks, disabled }: DownloadButtonProps) {
   }, [blocks]);
 
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-3">
       <Button
         variant="outline"
-        size="sm"
+        size="default"
         onClick={handleCopy}
         disabled={disabled || blocks.length === 0}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          width="14"
-          height="14"
+          width="18"
+          height="18"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="mr-1.5"
+          className="mr-2"
         >
           <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
           <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
@@ -52,21 +52,21 @@ export function DownloadButton({ blocks, disabled }: DownloadButtonProps) {
         Copy
       </Button>
       <Button
-        size="sm"
+        size="default"
         onClick={handleDownload}
         disabled={disabled || blocks.length === 0}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          width="14"
-          height="14"
+          width="18"
+          height="18"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="mr-1.5"
+          className="mr-2"
         >
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
           <polyline points="7 10 12 15 17 10" />

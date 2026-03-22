@@ -66,8 +66,8 @@ export function HistorySidebar({
     <AlertDialog open={!!pendingDeleteId} onOpenChange={(open) => { if (!open) setPendingDeleteId(null); }}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete history entry?</AlertDialogTitle>
-          <AlertDialogDescription>
+          <AlertDialogTitle className="text-lg">Delete history entry?</AlertDialogTitle>
+          <AlertDialogDescription className="text-base">
             This will permanently delete{" "}
             <span className="font-medium text-foreground">
               {pendingEntry?.filename ?? "this entry"}
@@ -85,13 +85,13 @@ export function HistorySidebar({
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
-    <div className="flex flex-col h-full border-r bg-card w-72 shrink-0">
-      <div className="flex items-center justify-between px-4 py-3 border-b">
-        <div className="flex items-center gap-2">
+    <div className="flex flex-col h-full border-r-2 bg-card w-80 shrink-0">
+      <div className="flex items-center justify-between px-5 py-4 border-b-2">
+        <div className="flex items-center gap-3">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
+            width="20"
+            height="20"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -104,16 +104,16 @@ export function HistorySidebar({
             <path d="M3 3v5h5" />
             <path d="M12 7v5l4 2" />
           </svg>
-          <h3 className="text-sm font-semibold">History</h3>
-          <Badge variant="secondary" className="text-xs">
+          <h3 className="text-base font-semibold">History</h3>
+          <Badge variant="secondary" className="text-sm">
             {entries.length}
           </Badge>
         </div>
-        <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={onClose}>
+        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={onClose}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="14"
-            height="14"
+            width="18"
+            height="18"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -128,9 +128,9 @@ export function HistorySidebar({
       </div>
 
       <ScrollArea className="flex-1">
-        <div className="flex flex-col gap-1 p-2">
+        <div className="flex flex-col gap-1.5 p-3">
           {entries.length === 0 && (
-            <p className="text-xs text-muted-foreground text-center py-8 px-4">
+            <p className="text-sm text-muted-foreground text-center py-10 px-4">
               No history yet. Process an image to see it here.
             </p>
           )}
@@ -140,17 +140,16 @@ export function HistorySidebar({
             return (
               <div
                 key={entry.id}
-                className={`group flex gap-3 rounded-lg p-2 cursor-pointer transition-colors ${
+                className={`group flex gap-3 rounded-lg p-3 cursor-pointer transition-colors ${
                   isActive
-                    ? "bg-primary/10 border border-primary/20"
-                    : "hover:bg-muted/50 border border-transparent"
+                    ? "bg-primary/10 border-2 border-primary/20"
+                    : "hover:bg-muted/50 border-2 border-transparent"
                 }`}
                 onClick={() => onLoad(entry)}
               >
-                {/* Thumbnail */}
-                <div className="w-12 h-12 rounded-md overflow-hidden bg-muted shrink-0 flex items-center justify-center">
+                <div className="w-14 h-14 rounded-md overflow-hidden bg-muted shrink-0 flex items-center justify-center">
                   {entry.kind === "text" ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground">
                       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" />
                       <path d="M14 2v6h6" />
                       <path d="M16 13H8" />
@@ -168,14 +167,14 @@ export function HistorySidebar({
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">
+                  <p className="text-base font-medium truncate">
                     {entry.filename}
                   </p>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-xs text-muted-foreground">
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-sm text-muted-foreground">
                       {entry.kind === "text" ? "text" : `${entry.blocks.length} blocks`}
                     </span>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-sm text-muted-foreground">
                       {timeAgo(entry.updatedAt)}
                     </span>
                   </div>
@@ -184,13 +183,13 @@ export function HistorySidebar({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 self-center text-muted-foreground hover:text-destructive"
+                  className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 self-center text-muted-foreground hover:text-destructive"
                   onClick={(e) => handleDeleteClick(e, entry.id)}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    width="12"
-                    height="12"
+                    width="16"
+                    height="16"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"

@@ -208,51 +208,36 @@ function HomeInner() {
 
   return (
     <main className="flex flex-col min-h-screen">
-      <header className="border-b bg-card">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="text-primary"
-              >
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" />
-                <path d="M14 2v6h6" />
-                <path d="M16 13H8" />
-                <path d="M16 17H8" />
-                <path d="M10 9H8" />
-              </svg>
-              <h1 className="text-lg font-bold tracking-tight">
+      <header className="border-b-2 border-border bg-card/80 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
+              <div className="seal-stamp text-lg">
+                文
+              </div>
+              <h1 className="text-2xl font-bold tracking-wide" style={{ fontFamily: "var(--font-heading)" }}>
                 玩轉古文
               </h1>
             </div>
-            <span className="text-xs text-muted-foreground hidden sm:inline">
+            <span className="text-sm text-muted-foreground hidden sm:inline">
               Powered by Gemini
             </span>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <Link href="/graph">
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="default">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
+                  width="18"
+                  height="18"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="mr-1.5"
+                  className="mr-2"
                 >
                   <circle cx="12" cy="12" r="3" />
                   <path d="M12 2v4" /><path d="M12 18v4" />
@@ -263,18 +248,18 @@ function HomeInner() {
               </Button>
             </Link>
             <Link href="/search">
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="default">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
+                  width="18"
+                  height="18"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="mr-1.5"
+                  className="mr-2"
                 >
                   <circle cx="11" cy="11" r="8" />
                   <path d="m21 21-4.3-4.3" />
@@ -284,20 +269,20 @@ function HomeInner() {
             </Link>
             <Button
               variant={showHistory ? "secondary" : "outline"}
-              size="sm"
+              size="default"
               onClick={() => setShowHistory((v) => !v)}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                width="14"
-                height="14"
+                width="18"
+                height="18"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="mr-1.5"
+                className="mr-2"
               >
                 <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
                 <path d="M3 3v5h5" />
@@ -305,7 +290,7 @@ function HomeInner() {
               </svg>
               History
               {history.length > 0 && (
-                <span className="ml-1 text-xs text-muted-foreground">
+                <span className="ml-1.5 text-sm text-muted-foreground">
                   ({history.length})
                 </span>
               )}
@@ -315,12 +300,12 @@ function HomeInner() {
                 <Button
                   onClick={handleRunOCR}
                   disabled={isProcessing}
-                  size="sm"
+                  size="default"
                 >
                   {isProcessing ? (
                     <>
                       <svg
-                        className="animate-spin mr-1.5 h-3.5 w-3.5"
+                        className="animate-spin mr-2 h-4 w-4"
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
                         viewBox="0 0 24 24"
@@ -345,7 +330,7 @@ function HomeInner() {
                     "Run OCR"
                   )}
                 </Button>
-                <Button variant="ghost" size="sm" onClick={handleReset}>
+                <Button variant="ghost" size="default" onClick={handleReset}>
                   Reset
                 </Button>
               </>
@@ -366,29 +351,33 @@ function HomeInner() {
         )}
 
         <div className="flex-1 overflow-auto">
-          <div className="max-w-7xl mx-auto w-full px-4 py-6">
+          <div className="max-w-7xl mx-auto w-full px-6 py-8">
             {error && (
-              <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm border border-destructive/20">
+              <div className="mb-6 p-4 rounded-lg bg-destructive/10 text-destructive text-base border border-destructive/20">
                 {error}
               </div>
             )}
 
             {!imageUrl ? (
-              <div className="max-w-xl mx-auto mt-16">
-                <div className="text-center mb-6">
-                  <h2 className="text-2xl font-bold tracking-tight mb-2">
+              <div className="max-w-2xl mx-auto mt-12">
+                <div className="text-center mb-10">
+                  <div className="inline-block mb-6">
+                    <div className="seal-stamp text-2xl px-4 py-1" style={{ fontFamily: "var(--font-heading)" }}>
+                      古文識讀
+                    </div>
+                  </div>
+                  <h2 className="text-3xl font-bold tracking-wide mb-3" style={{ fontFamily: "var(--font-heading)" }}>
                     Upload a Scanned Document
                   </h2>
-                  <p className="text-muted-foreground">
+                  <p className="text-lg text-muted-foreground leading-relaxed">
                     Upload a scanned image of classical Chinese literature to
                     extract and edit text using AI-powered OCR.
                   </p>
                 </div>
 
-                {/* Mode tabs */}
-                <div className="flex items-center justify-center gap-1 mb-6 p-1 rounded-lg bg-muted w-fit mx-auto">
+                <div className="flex items-center justify-center gap-1 mb-8 p-1.5 rounded-lg bg-muted w-fit mx-auto">
                   <button
-                    className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                    className={`px-6 py-2.5 text-base font-medium rounded-md transition-colors ${
                       uploadMode === "single"
                         ? "bg-background text-foreground shadow-sm"
                         : "text-muted-foreground hover:text-foreground"
@@ -398,7 +387,7 @@ function HomeInner() {
                     Single File
                   </button>
                   <button
-                    className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                    className={`px-6 py-2.5 text-base font-medium rounded-md transition-colors ${
                       uploadMode === "batch"
                         ? "bg-background text-foreground shadow-sm"
                         : "text-muted-foreground hover:text-foreground"
@@ -420,17 +409,17 @@ function HomeInner() {
                 )}
               </div>
             ) : (
-              <div className="flex flex-col items-center gap-6 mt-8">
-                <div className="max-w-2xl w-full">
-                  <div className="rounded-lg border overflow-hidden bg-muted/30">
+              <div className="flex flex-col items-center gap-8 mt-8">
+                <div className="max-w-3xl w-full">
+                  <div className="rounded-lg border-2 overflow-hidden bg-muted/30">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={imageUrl}
                       alt="Uploaded document"
-                      className="max-w-full h-auto mx-auto max-h-[60vh] object-contain"
+                      className="max-w-full h-auto mx-auto max-h-[65vh] object-contain"
                     />
                   </div>
-                  <p className="text-sm text-muted-foreground text-center mt-3">
+                  <p className="text-base text-muted-foreground text-center mt-4">
                     {isProcessing ? (
                       "Processing OCR... You will be redirected when complete."
                     ) : hasResults ? (

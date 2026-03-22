@@ -120,65 +120,50 @@ function OCRDetailInner() {
 
   return (
     <main className="flex flex-col min-h-screen">
-      <header className="border-b bg-card">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+      <header className="border-b-2 border-border bg-card/80 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-4">
             <Link
               href="/"
-              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+              className="flex items-center gap-3 hover:opacity-80 transition-opacity"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="text-primary"
-              >
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" />
-                <path d="M14 2v6h6" />
-                <path d="M16 13H8" />
-                <path d="M16 17H8" />
-                <path d="M10 9H8" />
-              </svg>
-              <h1 className="text-lg font-bold tracking-tight">
+              <div className="seal-stamp text-lg">
+                文
+              </div>
+              <h1 className="text-2xl font-bold tracking-wide" style={{ fontFamily: "var(--font-heading)" }}>
                 玩轉古文
               </h1>
             </Link>
-            <span className="text-xs text-muted-foreground hidden sm:inline">
+            <span className="text-sm text-muted-foreground hidden sm:inline">
               Powered by Gemini
             </span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             {entry && (
-              <div className="flex items-center gap-2 mr-2">
-                <span className="text-sm text-muted-foreground hidden sm:inline">
+              <div className="flex items-center gap-3 mr-2">
+                <span className="text-base text-muted-foreground hidden sm:inline">
                   {entry.filename}
                 </span>
                 {entry.modelName && (
-                  <Badge variant="outline" className="text-xs font-mono">
+                  <Badge variant="outline" className="text-sm font-mono">
                     {entry.modelName}
                   </Badge>
                 )}
               </div>
             )}
             <Link href="/graph">
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="default">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
+                  width="18"
+                  height="18"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="mr-1.5"
+                  className="mr-2"
                 >
                   <circle cx="12" cy="12" r="3" />
                   <path d="M12 2v4" />
@@ -192,18 +177,18 @@ function OCRDetailInner() {
               </Button>
             </Link>
             <Link href="/search">
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="default">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
+                  width="18"
+                  height="18"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="mr-1.5"
+                  className="mr-2"
                 >
                   <circle cx="11" cy="11" r="8" />
                   <path d="m21 21-4.3-4.3" />
@@ -213,20 +198,20 @@ function OCRDetailInner() {
             </Link>
             <Button
               variant={showHistory ? "secondary" : "outline"}
-              size="sm"
+              size="default"
               onClick={() => setShowHistory(!showHistory)}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                width="14"
-                height="14"
+                width="18"
+                height="18"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="mr-1.5"
+                className="mr-2"
               >
                 <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
                 <path d="M3 3v5h5" />
@@ -234,24 +219,24 @@ function OCRDetailInner() {
               </svg>
               History
               {history.length > 0 && (
-                <span className="ml-1 text-xs text-muted-foreground">
+                <span className="ml-1.5 text-sm text-muted-foreground">
                   ({history.length})
                 </span>
               )}
             </Button>
             <Link href="/">
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="default">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
+                  width="18"
+                  height="18"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="mr-1.5"
+                  className="mr-2"
                 >
                   <path d="M5 12h14" />
                   <path d="M12 5v14" />
@@ -275,15 +260,15 @@ function OCRDetailInner() {
         )}
 
         <div className="flex-1 overflow-auto">
-          <div className="max-w-7xl mx-auto w-full px-4 py-6">
+          <div className="max-w-7xl mx-auto w-full px-6 py-8">
             {loading && (
-              <div className="text-center py-12 text-muted-foreground">
-                <p className="text-sm">Loading document...</p>
+              <div className="text-center py-16 text-muted-foreground">
+                <p className="text-base">Loading document...</p>
               </div>
             )}
 
             {error && (
-              <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm border border-destructive/20">
+              <div className="mb-6 p-4 rounded-lg bg-destructive/10 text-destructive text-base border border-destructive/20">
                 {error}
               </div>
             )}

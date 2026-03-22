@@ -71,7 +71,7 @@ export function ImageUpload({ onImageSelected, onTextSelected, disabled }: Image
 
   return (
     <Card
-      className={`flex flex-col items-center justify-center gap-4 border-2 border-dashed p-12 transition-colors cursor-pointer ${
+      className={`flex flex-col items-center justify-center gap-6 border-2 border-dashed p-16 transition-colors cursor-pointer ${
         isDragging
           ? "border-primary bg-primary/5"
           : "border-muted-foreground/25 hover:border-primary/50"
@@ -81,11 +81,11 @@ export function ImageUpload({ onImageSelected, onTextSelected, disabled }: Image
       onDragLeave={handleDragLeave}
       onClick={handleClick}
     >
-      <div className="rounded-full bg-muted p-4">
+      <div className="rounded-full bg-muted p-5">
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          width="32"
-          height="32"
+          width="40"
+          height="40"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -100,14 +100,14 @@ export function ImageUpload({ onImageSelected, onTextSelected, disabled }: Image
         </svg>
       </div>
       <div className="text-center">
-        <p className="text-lg font-medium">
+        <p className="text-xl font-medium">
           Drop your file here
         </p>
-        <p className="text-sm text-muted-foreground mt-1">
+        <p className="text-base text-muted-foreground mt-2">
           Supports JPG, PNG images and TXT files
         </p>
       </div>
-      <Button variant="secondary" size="sm" disabled={disabled}>
+      <Button variant="secondary" size="lg" disabled={disabled}>
         Browse Files
       </Button>
     </Card>

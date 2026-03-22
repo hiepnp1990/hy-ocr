@@ -42,12 +42,12 @@ export function TextEditor({
 
   return (
     <ScrollArea className="h-full">
-      <div className="flex flex-col gap-3 p-4">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-sm font-semibold tracking-tight">
+      <div className="flex flex-col gap-4 p-5">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-base font-semibold tracking-tight">
             Detected Text Blocks
           </h3>
-          <Badge variant="secondary" className="text-xs">
+          <Badge variant="secondary" className="text-sm">
             {blocks.length} blocks
           </Badge>
         </div>
@@ -61,26 +61,26 @@ export function TextEditor({
             <div
               key={block.id}
               ref={setBlockRef(block.id)}
-              className={`rounded-lg border p-3 transition-all cursor-pointer ${
+              className={`rounded-lg border-2 p-4 transition-all cursor-pointer ${
                 isSelected
                   ? "border-primary ring-2 ring-primary/20 bg-primary/5"
                   : isHighlighted
-                    ? "border-fuchsia-400 ring-2 ring-fuchsia-300/30 bg-fuchsia-50"
+                    ? "border-gold ring-2 ring-gold/30 bg-gold/10"
                     : "border-border hover:border-primary/40"
               }`}
               onClick={() => onBlockSelect(block.id)}
             >
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs font-mono text-muted-foreground">
+              <div className="flex items-center gap-3 mb-3">
+                <span className="text-sm font-mono text-muted-foreground">
                   #{index + 1}
                 </span>
                 {isHighlighted && (
-                  <Badge variant="outline" className="text-xs text-fuchsia-600 border-fuchsia-300">
+                  <Badge variant="outline" className="text-sm text-gold border-gold/40">
                     match
                   </Badge>
                 )}
                 {isEdited && (
-                  <Badge variant="outline" className="text-xs text-green-600 border-green-300">
+                  <Badge variant="outline" className="text-sm text-jade border-jade/40">
                     edited
                   </Badge>
                 )}
@@ -88,7 +88,7 @@ export function TextEditor({
               <Textarea
                 value={block.text}
                 onChange={(e) => onBlockTextChange(block.id, e.target.value)}
-                className="min-h-[60px] resize-y text-base leading-relaxed font-serif"
+                className="min-h-[80px] resize-y text-lg leading-relaxed font-serif"
                 onClick={(e) => e.stopPropagation()}
               />
             </div>
@@ -96,7 +96,7 @@ export function TextEditor({
         })}
 
         {blocks.length === 0 && (
-          <p className="text-sm text-muted-foreground text-center py-8">
+          <p className="text-base text-muted-foreground text-center py-10">
             No text blocks detected yet. Upload an image and run OCR to see results.
           </p>
         )}

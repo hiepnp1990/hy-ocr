@@ -211,9 +211,9 @@ export function BatchUpload({ onProcessed }: BatchUploadProps) {
   const doneCount = files.filter((f) => f.status === "done").length;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <Card
-        className={`flex flex-col items-center justify-center gap-3 border-2 border-dashed p-8 transition-colors cursor-pointer ${
+        className={`flex flex-col items-center justify-center gap-4 border-2 border-dashed p-10 transition-colors cursor-pointer ${
           isDragging
             ? "border-primary bg-primary/5"
             : "border-muted-foreground/25 hover:border-primary/50"
@@ -229,11 +229,11 @@ export function BatchUpload({ onProcessed }: BatchUploadProps) {
         }}
         onClick={handleBrowse}
       >
-        <div className="rounded-full bg-muted p-3">
+        <div className="rounded-full bg-muted p-4">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="28"
-            height="28"
+            width="36"
+            height="36"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -250,48 +250,48 @@ export function BatchUpload({ onProcessed }: BatchUploadProps) {
           </svg>
         </div>
         <div className="text-center">
-          <p className="font-medium">
+          <p className="text-lg font-medium">
             Drop multiple files here
           </p>
-          <p className="text-sm text-muted-foreground mt-0.5">
+          <p className="text-base text-muted-foreground mt-1">
             Up to {MAX_FILES} files (JPG, PNG, TXT)
             {files.length > 0 && ` — ${files.length}/${MAX_FILES} selected`}
           </p>
         </div>
-        <Button variant="secondary" size="sm" disabled={isRunning}>
+        <Button variant="secondary" size="default" disabled={isRunning}>
           Browse Files
         </Button>
       </Card>
 
       {files.length > 0 && (
-        <div className="rounded-lg border bg-card">
-          <div className="flex items-center justify-between px-4 py-3 border-b">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold">Files</span>
-              <Badge variant="secondary" className="text-xs">
+        <div className="rounded-lg border-2 bg-card">
+          <div className="flex items-center justify-between px-5 py-4 border-b-2">
+            <div className="flex items-center gap-3">
+              <span className="text-base font-semibold">Files</span>
+              <Badge variant="secondary" className="text-sm">
                 {files.length}
               </Badge>
               {processingCount > 0 && (
-                <Badge variant="default" className="text-xs">
+                <Badge variant="default" className="text-sm">
                   {processingCount} processing
                 </Badge>
               )}
               {doneCount > 0 && (
-                <Badge variant="outline" className="text-xs">
+                <Badge variant="outline" className="text-sm">
                   {doneCount} done
                 </Badge>
               )}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               {doneCount > 0 && !isRunning && (
-                <Button variant="ghost" size="sm" onClick={clearDone}>
+                <Button variant="ghost" size="default" onClick={clearDone}>
                   Clear done
                 </Button>
               )}
               {files.length > 0 && !isRunning && (
                 <Button
                   variant="ghost"
-                  size="sm"
+                  size="default"
                   onClick={() => {
                     for (const f of files)
                       if (f.preview) URL.revokeObjectURL(f.preview);
@@ -304,15 +304,14 @@ export function BatchUpload({ onProcessed }: BatchUploadProps) {
             </div>
           </div>
 
-          <ScrollArea className="max-h-[420px]">
+          <ScrollArea className="max-h-[480px]">
             <div className="divide-y">
               {files.map((f) => (
                 <div
                   key={f.id}
-                  className="flex items-center gap-3 px-4 py-2.5 group"
+                  className="flex items-center gap-4 px-5 py-3.5 group"
                 >
-                  {/* Thumbnail */}
-                  <div className="w-10 h-10 rounded-md overflow-hidden bg-muted shrink-0 flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-md overflow-hidden bg-muted shrink-0 flex items-center justify-center">
                     {f.preview ? (
                       /* eslint-disable-next-line @next/next/no-img-element */
                       <img
@@ -323,8 +322,8 @@ export function BatchUpload({ onProcessed }: BatchUploadProps) {
                     ) : (
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        width="18"
-                        height="18"
+                        width="22"
+                        height="22"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
@@ -341,23 +340,21 @@ export function BatchUpload({ onProcessed }: BatchUploadProps) {
                     )}
                   </div>
 
-                  {/* File info */}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{f.file.name}</p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-base font-medium truncate">{f.file.name}</p>
+                    <p className="text-sm text-muted-foreground">
                       {(f.file.size / 1024).toFixed(0)} KB
                     </p>
                   </div>
 
-                  {/* Status */}
-                  <div className="shrink-0 flex items-center gap-2">
+                  <div className="shrink-0 flex items-center gap-3">
                     {f.status === "pending" && (
-                      <span className="text-xs text-muted-foreground">Pending</span>
+                      <span className="text-sm text-muted-foreground">Pending</span>
                     )}
                     {f.status === "processing" && (
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-2">
                         <svg
-                          className="animate-spin h-3.5 w-3.5 text-primary"
+                          className="animate-spin h-4 w-4 text-primary"
                           xmlns="http://www.w3.org/2000/svg"
                           fill="none"
                           viewBox="0 0 24 24"
@@ -376,12 +373,12 @@ export function BatchUpload({ onProcessed }: BatchUploadProps) {
                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
                           />
                         </svg>
-                        <span className="text-xs text-primary font-medium">Processing</span>
+                        <span className="text-sm text-primary font-medium">Processing</span>
                       </div>
                     )}
                     {f.status === "done" && (
                       <button
-                        className="flex items-center gap-1.5 hover:underline"
+                        className="flex items-center gap-2 hover:underline"
                         onClick={() => {
                           if (f.entryId) {
                             const isText =
@@ -395,29 +392,29 @@ export function BatchUpload({ onProcessed }: BatchUploadProps) {
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
-                          width="14"
-                          height="14"
+                          width="18"
+                          height="18"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="currentColor"
                           strokeWidth="2"
                           strokeLinecap="round"
                           strokeLinejoin="round"
-                          className="text-green-600"
+                          className="text-jade"
                         >
                           <path d="M20 6 9 17l-5-5" />
                         </svg>
-                        <span className="text-xs text-green-600 font-medium">
+                        <span className="text-sm text-jade font-medium">
                           Done — View
                         </span>
                       </button>
                     )}
                     {f.status === "error" && (
-                      <div className="flex items-center gap-1.5" title={f.error}>
+                      <div className="flex items-center gap-2" title={f.error}>
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
-                          width="14"
-                          height="14"
+                          width="18"
+                          height="18"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="currentColor"
@@ -430,25 +427,24 @@ export function BatchUpload({ onProcessed }: BatchUploadProps) {
                           <line x1="15" y1="9" x2="9" y2="15" />
                           <line x1="9" y1="9" x2="15" y2="15" />
                         </svg>
-                        <span className="text-xs text-destructive font-medium truncate max-w-[120px]">
+                        <span className="text-sm text-destructive font-medium truncate max-w-[150px]">
                           {f.error || "Error"}
                         </span>
                       </div>
                     )}
                   </div>
 
-                  {/* Remove button (hidden while processing) */}
                   {f.status !== "processing" && (
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 text-muted-foreground hover:text-destructive"
+                      className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 text-muted-foreground hover:text-destructive"
                       onClick={() => removeFile(f.id)}
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        width="14"
-                        height="14"
+                        width="18"
+                        height="18"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
@@ -466,9 +462,8 @@ export function BatchUpload({ onProcessed }: BatchUploadProps) {
             </div>
           </ScrollArea>
 
-          {/* Footer with action button */}
-          <div className="flex items-center justify-between px-4 py-3 border-t bg-muted/30">
-            <p className="text-xs text-muted-foreground">
+          <div className="flex items-center justify-between px-5 py-4 border-t-2 bg-muted/30">
+            <p className="text-sm text-muted-foreground">
               {isRunning
                 ? `Processing ${processingCount} of ${files.length} files (max ${MAX_PARALLEL} in parallel)`
                 : pendingCount > 0
@@ -478,14 +473,14 @@ export function BatchUpload({ onProcessed }: BatchUploadProps) {
                     : `${doneCount} done, ${pendingCount} pending`}
             </p>
             <Button
-              size="sm"
+              size="default"
               disabled={isRunning || pendingCount === 0}
               onClick={runAll}
             >
               {isRunning ? (
                 <>
                   <svg
-                    className="animate-spin mr-1.5 h-3.5 w-3.5"
+                    className="animate-spin mr-2 h-4 w-4"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"

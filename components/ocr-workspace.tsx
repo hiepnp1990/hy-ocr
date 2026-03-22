@@ -69,12 +69,12 @@ export function OCRWorkspace({ imageUrl, blocks, onBlocksChange, highlightedBloc
   }, []);
 
   return (
-    <div className="flex flex-col h-full gap-4">
+    <div className="flex flex-col h-full gap-6">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <h2 className="text-lg font-semibold tracking-tight">OCR Results</h2>
+        <div className="flex items-center gap-4">
+          <h2 className="text-2xl font-semibold tracking-wide" style={{ fontFamily: "var(--font-heading)" }}>OCR Results</h2>
           {modelName && (
-            <Badge variant="secondary" className="text-xs font-mono">
+            <Badge variant="secondary" className="text-sm font-mono">
               {modelName}
             </Badge>
           )}
@@ -82,15 +82,14 @@ export function OCRWorkspace({ imageUrl, blocks, onBlocksChange, highlightedBloc
         <DownloadButton blocks={blocks} />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1 min-h-0">
-        {/* Left: Image with bounding boxes */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 min-h-0">
         <Card className="relative overflow-auto p-0">
-          <div className="p-3 border-b">
-            <h3 className="text-sm font-medium text-muted-foreground">
+          <div className="p-4 border-b-2">
+            <h3 className="text-base font-medium text-muted-foreground">
               Original Image
             </h3>
           </div>
-          <div className="p-4 overflow-auto">
+          <div className="p-5 overflow-auto">
             <div ref={imageContainerRef} className="relative inline-block">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -114,14 +113,13 @@ export function OCRWorkspace({ imageUrl, blocks, onBlocksChange, highlightedBloc
           </div>
         </Card>
 
-        {/* Right: Text editor */}
         <Card className="flex flex-col overflow-hidden p-0">
-          <div className="p-3 border-b flex items-center justify-between">
-            <h3 className="text-sm font-medium text-muted-foreground">
+          <div className="p-4 border-b-2 flex items-center justify-between">
+            <h3 className="text-base font-medium text-muted-foreground">
               Recognized Text
             </h3>
             {editedBlockIds.size > 0 && (
-              <span className="text-xs text-green-600">
+              <span className="text-sm text-jade">
                 {editedBlockIds.size} edited
               </span>
             )}

@@ -14,10 +14,10 @@ const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), {
 }) as any;
 
 const ENTITY_COLORS: Record<EntityType, string> = {
-  PERSON: "#e74c3c",
-  PLACE: "#2ecc71",
-  WORK: "#3498db",
-  ERA: "#f39c12",
+  PERSON: "#c23b22",
+  PLACE: "#5b8c5a",
+  WORK: "#4a6fa5",
+  ERA: "#c9a84c",
   TITLE: "#9b59b6",
   EVENT: "#e67e22",
   CONCEPT: "#1abc9c",
@@ -108,7 +108,7 @@ export default function GraphPage() {
       const data = await res.json();
       if (data.entries) setHistoryEntries(data.entries);
     } catch {
-      /* ignore — filter simply won't show entries */
+      /* ignore */
     }
   }
 
@@ -214,8 +214,8 @@ export default function GraphPage() {
     (node: FGNode, ctx: CanvasRenderingContext2D, globalScale: number) => {
       const label = node.label || "";
       const type = (node.type || "CONCEPT") as EntityType;
-      const fontSize = Math.max(12 / globalScale, 3);
-      const nodeR = Math.max(6, 4 + label.length * 0.8);
+      const fontSize = Math.max(14 / globalScale, 4);
+      const nodeR = Math.max(8, 5 + label.length * 0.9);
 
       ctx.beginPath();
       ctx.arc(node.x!, node.y!, nodeR, 0, 2 * Math.PI);
@@ -224,15 +224,15 @@ export default function GraphPage() {
 
       if (selectedNode?.id === node.id) {
         ctx.strokeStyle = "#fff";
-        ctx.lineWidth = 2 / globalScale;
+        ctx.lineWidth = 2.5 / globalScale;
         ctx.stroke();
       }
 
-      ctx.font = `${fontSize}px "Geist", sans-serif`;
+      ctx.font = `${fontSize}px "Noto Serif SC", serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "top";
-      ctx.fillStyle = "#e0e0e0";
-      ctx.fillText(label, node.x!, node.y! + nodeR + 2);
+      ctx.fillStyle = "#e8dcc8";
+      ctx.fillText(label, node.x!, node.y! + nodeR + 3);
     },
     [selectedNode]
   );
@@ -240,9 +240,9 @@ export default function GraphPage() {
   const nodePointerAreaPaint = useCallback(
     (node: FGNode, color: string, ctx: CanvasRenderingContext2D) => {
       const label = node.label || "";
-      const nodeR = Math.max(6, 4 + label.length * 0.8);
+      const nodeR = Math.max(8, 5 + label.length * 0.9);
       ctx.beginPath();
-      ctx.arc(node.x!, node.y!, nodeR + 2, 0, 2 * Math.PI);
+      ctx.arc(node.x!, node.y!, nodeR + 3, 0, 2 * Math.PI);
       ctx.fillStyle = color;
       ctx.fill();
     },
@@ -256,44 +256,43 @@ export default function GraphPage() {
     : [];
 
   return (
-    <main className="flex flex-col h-screen bg-[#0a0a0a]">
-      {/* Header */}
-      <header className="border-b border-neutral-800 bg-[#111] shrink-0">
-        <div className="max-w-full mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400">
+    <main className="flex flex-col h-screen bg-[#1a1208]">
+      <header className="border-b-2 border-[#3d2e1e] bg-[#261c10] shrink-0">
+        <div className="max-w-full mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-jade">
                 <circle cx="12" cy="12" r="3" />
                 <path d="M12 2v4" /><path d="M12 18v4" />
                 <path d="m4.93 4.93 2.83 2.83" /><path d="m16.24 16.24 2.83 2.83" />
                 <path d="M2 12h4" /><path d="M18 12h4" />
                 <path d="m4.93 19.07 2.83-2.83" /><path d="m16.24 7.76 2.83-2.83" />
               </svg>
-              <h1 className="text-base font-bold tracking-tight text-neutral-100">
+              <h1 className="text-xl font-bold tracking-wide text-[#e8dcc8]" style={{ fontFamily: "var(--font-heading)" }}>
                 Knowledge Graph
               </h1>
             </Link>
             {graph && (
-              <span className="text-xs text-neutral-500">
+              <span className="text-sm text-[#8b7355]">
                 {graphData.nodes.length}/{graph.nodes.length} nodes &middot; {graphData.links.length}/{graph.edges.length} edges
               </span>
             )}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <Link href="/">
-              <Button variant="outline" size="sm" className="border-neutral-700 text-neutral-300 hover:bg-neutral-800">
+              <Button variant="outline" size="default" className="border-[#3d2e1e] text-[#e8dcc8] hover:bg-[#3d2e1e]">
                 Back to OCR
               </Button>
             </Link>
             <Button
-              size="sm"
+              size="default"
               onClick={handleExtract}
               disabled={extracting}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white"
+              className="bg-jade hover:bg-jade/90 text-white"
             >
               {extracting ? (
                 <>
-                  <svg className="animate-spin -ml-1 mr-1.5 h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
@@ -310,15 +309,14 @@ export default function GraphPage() {
       </header>
 
       {error && (
-        <div className="px-4 py-2 bg-red-950/50 border-b border-red-900/50 text-red-400 text-sm">
+        <div className="px-6 py-3 bg-[#3a1515] border-b-2 border-[#5a2020] text-[#e8a0a0] text-base">
           {error}
         </div>
       )}
 
-      {/* Filter bar */}
       {graph && (
-        <div className="border-b border-neutral-800 bg-[#111] px-4 py-2 flex items-center gap-2 shrink-0 flex-wrap">
-          <span className="text-xs text-neutral-500 mr-1">Filter:</span>
+        <div className="border-b-2 border-[#3d2e1e] bg-[#261c10] px-6 py-3 flex items-center gap-3 shrink-0 flex-wrap">
+          <span className="text-sm text-[#8b7355] mr-1">Filter:</span>
           {(Object.keys(ENTITY_COLORS) as EntityType[]).map((type) => {
             const count = graph.nodes.filter((n) => n.type === type).length;
             if (count === 0) return null;
@@ -327,7 +325,7 @@ export default function GraphPage() {
               <button
                 key={type}
                 onClick={() => toggleFilter(type)}
-                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all ${
+                className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
                   active
                     ? "opacity-100"
                     : "opacity-30 hover:opacity-60"
@@ -339,52 +337,51 @@ export default function GraphPage() {
                 }}
               >
                 <span
-                  className="w-2 h-2 rounded-full"
+                  className="w-2.5 h-2.5 rounded-full"
                   style={{ backgroundColor: ENTITY_COLORS[type] }}
                 />
                 {ENTITY_LABELS[type]} ({count})
               </button>
             );
           })}
-          {/* Entry / document filter */}
           {graph && graph.sourceEntryIds.length > 0 && (
-            <div className="relative ml-2" ref={entryDropdownRef}>
+            <div className="relative ml-3" ref={entryDropdownRef}>
               <button
                 onClick={() => setEntryDropdownOpen((o) => !o)}
-                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium border transition-all ${
+                className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium border transition-all ${
                   selectedEntryIds.size > 0
-                    ? "bg-sky-600/20 text-sky-400 border-sky-500/40"
-                    : "bg-neutral-900 text-neutral-400 border-neutral-700 hover:border-neutral-500"
+                    ? "bg-[#c9a84c]/20 text-[#c9a84c] border-[#c9a84c]/40"
+                    : "bg-[#261c10] text-[#a89070] border-[#3d2e1e] hover:border-[#8b7355]"
                 }`}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
                   <path d="M14 2v4a2 2 0 0 0 2 2h4" />
                 </svg>
                 {selectedEntryIds.size > 0
                   ? `${selectedEntryIds.size} doc${selectedEntryIds.size > 1 ? "s" : ""}`
                   : "All docs"}
-                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="m6 9 6 6 6-6" />
                 </svg>
               </button>
 
               {entryDropdownOpen && (
-                <div className="absolute top-full left-0 mt-1 w-72 bg-neutral-900 border border-neutral-700 rounded-lg shadow-xl z-50 overflow-hidden">
-                  <div className="px-3 py-2 border-b border-neutral-800 flex items-center justify-between">
-                    <span className="text-xs font-semibold text-neutral-400">
+                <div className="absolute top-full left-0 mt-1 w-80 bg-[#261c10] border-2 border-[#3d2e1e] rounded-lg shadow-xl z-50 overflow-hidden">
+                  <div className="px-4 py-3 border-b-2 border-[#3d2e1e] flex items-center justify-between">
+                    <span className="text-sm font-semibold text-[#8b7355]">
                       Filter by document
                     </span>
                     {selectedEntryIds.size > 0 && (
                       <button
                         onClick={clearEntryFilter}
-                        className="text-[10px] text-sky-400 hover:text-sky-300"
+                        className="text-xs text-[#c9a84c] hover:text-[#d4b45c]"
                       >
                         Clear all
                       </button>
                     )}
                   </div>
-                  <div className="max-h-64 overflow-y-auto">
+                  <div className="max-h-72 overflow-y-auto">
                     {graph.sourceEntryIds.map((entryId) => {
                       const entry = historyEntries.find((e) => e.id === entryId);
                       const label = entry?.filename ?? entryId;
@@ -395,20 +392,20 @@ export default function GraphPage() {
                       return (
                         <label
                           key={entryId}
-                          className={`flex items-center gap-2.5 px-3 py-2 cursor-pointer hover:bg-neutral-800/60 transition-colors ${
-                            checked ? "bg-neutral-800/40" : ""
+                          className={`flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-[#3d2e1e]/60 transition-colors ${
+                            checked ? "bg-[#3d2e1e]/40" : ""
                           }`}
                         >
                           <input
                             type="checkbox"
                             checked={checked}
                             onChange={() => toggleEntryId(entryId)}
-                            className="accent-sky-500 w-3.5 h-3.5 shrink-0"
+                            className="accent-[#c9a84c] w-4 h-4 shrink-0"
                           />
-                          <span className="text-xs text-neutral-200 truncate flex-1">
+                          <span className="text-sm text-[#e8dcc8] truncate flex-1">
                             {label}
                           </span>
-                          <span className="text-[10px] text-neutral-600 shrink-0">
+                          <span className="text-xs text-[#8b7355] shrink-0">
                             {nodeCount} nodes
                           </span>
                         </label>
@@ -426,33 +423,31 @@ export default function GraphPage() {
               placeholder="Search nodes..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-neutral-900 border border-neutral-700 rounded-md px-3 py-1 text-xs text-neutral-200 placeholder:text-neutral-600 focus:outline-none focus:border-neutral-500 w-48"
+              className="bg-[#1a1208] border-2 border-[#3d2e1e] rounded-md px-4 py-1.5 text-sm text-[#e8dcc8] placeholder:text-[#8b7355] focus:outline-none focus:border-[#8b7355] w-56"
             />
           </div>
         </div>
       )}
 
-      {/* Main content */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Graph canvas */}
         <div ref={containerRef} className="flex-1 relative">
           {loading && (
-            <div className="absolute inset-0 flex items-center justify-center text-neutral-500 text-sm">
+            <div className="absolute inset-0 flex items-center justify-center text-[#8b7355] text-base">
               Loading...
             </div>
           )}
 
           {!loading && !graph && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-neutral-500 gap-4">
-              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="text-neutral-700">
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-[#8b7355] gap-5">
+              <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="text-[#3d2e1e]">
                 <circle cx="12" cy="12" r="3" />
                 <path d="M12 2v4" /><path d="M12 18v4" />
                 <path d="m4.93 4.93 2.83 2.83" /><path d="m16.24 16.24 2.83 2.83" />
                 <path d="M2 12h4" /><path d="M18 12h4" />
                 <path d="m4.93 19.07 2.83-2.83" /><path d="m16.24 7.76 2.83-2.83" />
               </svg>
-              <p className="text-sm">No knowledge graph yet.</p>
-              <p className="text-xs text-neutral-600">
+              <p className="text-base">No knowledge graph yet.</p>
+              <p className="text-sm text-[#6b5540]">
                 Click &ldquo;Extract Knowledge Graph&rdquo; to analyze your OCR documents.
               </p>
             </div>
@@ -464,14 +459,14 @@ export default function GraphPage() {
               width={dimensions.width}
               height={dimensions.height}
               graphData={graphData}
-              backgroundColor="#0a0a0a"
+              backgroundColor="#1a1208"
               nodeCanvasObject={nodeCanvasObject}
               nodePointerAreaPaint={nodePointerAreaPaint}
-              linkColor={() => "#333"}
+              linkColor={() => "#3d2e1e"}
               linkWidth={1.5}
-              linkDirectionalArrowLength={4}
+              linkDirectionalArrowLength={5}
               linkDirectionalArrowRelPos={0.85}
-              linkDirectionalArrowColor={() => "#555"}
+              linkDirectionalArrowColor={() => "#5a4530"}
               linkLabel={(link: { relation?: string }) => link.relation || ""}
               onNodeClick={handleNodeClick}
               onLinkClick={handleLinkClick}
@@ -485,37 +480,36 @@ export default function GraphPage() {
           )}
 
           {!loading && graph && graphData.nodes.length === 0 && (
-            <div className="absolute inset-0 flex items-center justify-center text-neutral-500 text-sm">
+            <div className="absolute inset-0 flex items-center justify-center text-[#8b7355] text-base">
               No nodes match your filter/search.
             </div>
           )}
         </div>
 
-        {/* Detail panel */}
         {(selectedNode || selectedEdge) && (
-          <div className="w-80 border-l border-neutral-800 bg-[#111] overflow-y-auto shrink-0">
-            <div className="p-4">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-neutral-200">Details</h3>
+          <div className="w-96 border-l-2 border-[#3d2e1e] bg-[#261c10] overflow-y-auto shrink-0">
+            <div className="p-5">
+              <div className="flex items-center justify-between mb-5">
+                <h3 className="text-base font-semibold text-[#e8dcc8]">Details</h3>
                 <button
                   onClick={() => {
                     setSelectedNode(null);
                     setSelectedEdge(null);
                   }}
-                  className="text-neutral-500 hover:text-neutral-300 text-xs"
+                  className="text-[#8b7355] hover:text-[#e8dcc8] text-sm"
                 >
                   Close
                 </button>
               </div>
 
               {selectedNode && (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <div>
-                    <h4 className="text-lg font-bold text-neutral-100">
+                    <h4 className="text-xl font-bold text-[#e8dcc8]" style={{ fontFamily: "var(--font-heading)" }}>
                       {selectedNode.label}
                     </h4>
                     <Badge
-                      className="mt-1 text-[10px]"
+                      className="mt-2 text-sm"
                       style={{
                         backgroundColor: ENTITY_COLORS[selectedNode.type] + "22",
                         color: ENTITY_COLORS[selectedNode.type],
@@ -526,16 +520,16 @@ export default function GraphPage() {
                     </Badge>
                   </div>
                   {selectedNode.description && (
-                    <p className="text-sm text-neutral-400 leading-relaxed">
+                    <p className="text-base text-[#a89070] leading-relaxed">
                       {selectedNode.description}
                     </p>
                   )}
                   {connectedEdges.length > 0 && (
                     <div>
-                      <h5 className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-2">
+                      <h5 className="text-sm font-semibold text-[#8b7355] uppercase tracking-wider mb-3">
                         Relationships ({connectedEdges.length})
                       </h5>
-                      <div className="space-y-1.5">
+                      <div className="space-y-2">
                         {connectedEdges.map((edge, i) => {
                           const isSource = edge.source === selectedNode.id;
                           const otherLabel =
@@ -545,11 +539,11 @@ export default function GraphPage() {
                           return (
                             <div
                               key={i}
-                              className="text-xs text-neutral-400 bg-neutral-900/50 rounded px-2.5 py-1.5"
+                              className="text-sm text-[#a89070] bg-[#1a1208]/50 rounded-lg px-3 py-2"
                             >
                               {isSource ? (
                                 <>
-                                  <span className="text-neutral-300">
+                                  <span className="text-[#e8dcc8]">
                                     {edge.relation}
                                   </span>{" "}
                                   &rarr; {otherLabel}
@@ -557,14 +551,14 @@ export default function GraphPage() {
                               ) : (
                                 <>
                                   {otherLabel}{" "}
-                                  <span className="text-neutral-300">
+                                  <span className="text-[#e8dcc8]">
                                     {edge.relation}
                                   </span>{" "}
                                   &rarr; this
                                 </>
                               )}
                               {edge.description && (
-                                <div className="text-neutral-600 mt-0.5">
+                                <div className="text-[#6b5540] mt-1">
                                   {edge.description}
                                 </div>
                               )}
@@ -578,23 +572,23 @@ export default function GraphPage() {
               )}
 
               {selectedEdge && (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <div>
-                    <h4 className="text-base font-bold text-neutral-100">
+                    <h4 className="text-lg font-bold text-[#e8dcc8]" style={{ fontFamily: "var(--font-heading)" }}>
                       {selectedEdge.relation}
                     </h4>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-neutral-400">
-                    <span className="text-neutral-200">
+                  <div className="flex items-center gap-3 text-base text-[#a89070]">
+                    <span className="text-[#e8dcc8]">
                       {graph?.nodes.find((n) => n.id === selectedEdge.source)?.label}
                     </span>
                     <span>&rarr;</span>
-                    <span className="text-neutral-200">
+                    <span className="text-[#e8dcc8]">
                       {graph?.nodes.find((n) => n.id === selectedEdge.target)?.label}
                     </span>
                   </div>
                   {selectedEdge.description && (
-                    <p className="text-sm text-neutral-400 leading-relaxed">
+                    <p className="text-base text-[#a89070] leading-relaxed">
                       {selectedEdge.description}
                     </p>
                   )}
