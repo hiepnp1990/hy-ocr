@@ -1,4 +1,4 @@
-# Classical Chinese OCR (hy-ocr)
+# 玩轉古文 (hy-ocr)
 
 A web app for extracting text from scanned images of classical Chinese literature using Google Gemini AI.
 

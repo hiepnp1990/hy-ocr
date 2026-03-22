@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Classical Chinese OCR",
+  title: "玩轉古文",
   description:
     "Upload scanned images of classical Chinese literature and extract text using AI-powered OCR with Google Gemini",
 };

@@ -1,5 +1,5 @@
 ---
-name: Classical Chinese OCR App
+name: 玩轉古文 App
 overview: Build a Next.js web app at /Users/hiepnp/build/hy-ocr that lets users upload scanned images of classical Chinese literature, perform OCR via Google Gemini (gemini-3-flash-preview), review/edit results side-by-side with bounding boxes, and download corrected text.
 todos:
   - id: init-project
@@ -38,7 +38,7 @@ todos:
 isProject: false
 ---
 
-# Classical Chinese OCR Web App
+# 玩轉古文 Web App
 
 ## Tech Stack
 

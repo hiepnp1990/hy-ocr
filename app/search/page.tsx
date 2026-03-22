@@ -105,7 +105,7 @@ function SearchPageInner() {
                 <path d="M10 9H8" />
               </svg>
               <h1 className="text-lg font-bold tracking-tight">
-                Classical Chinese OCR
+                玩轉古文
               </h1>
             </Link>
             <span className="text-xs text-muted-foreground hidden sm:inline">
