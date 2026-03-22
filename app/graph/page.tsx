@@ -5,7 +5,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import type { KnowledgeGraph, GraphNode, GraphEdge, EntityType } from "@/lib/types";
+import type { KnowledgeGraph, GraphNode, GraphEdge, EntityType, HistoryEntry } from "@/lib/types";
 import type { ForceGraphMethods } from "react-force-graph-2d";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -53,12 +53,27 @@ export default function GraphPage() {
   const [selectedEdge, setSelectedEdge] = useState<GraphEdge | null>(null);
   const [activeFilters, setActiveFilters] = useState<Set<EntityType>>(new Set());
   const [searchQuery, setSearchQuery] = useState("");
+  const [historyEntries, setHistoryEntries] = useState<HistoryEntry[]>([]);
+  const [selectedEntryIds, setSelectedEntryIds] = useState<Set<string>>(new Set());
+  const [entryDropdownOpen, setEntryDropdownOpen] = useState(false);
+  const entryDropdownRef = useRef<HTMLDivElement>(null);
   const fgRef = useRef<ForceGraphMethods>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
 
   useEffect(() => {
     fetchGraph();
+    fetchHistoryEntries();
+  }, []);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (entryDropdownRef.current && !entryDropdownRef.current.contains(e.target as Node)) {
+        setEntryDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   useEffect(() => {
@@ -86,6 +101,29 @@ export default function GraphPage() {
       setLoading(false);
     }
   }
+
+  async function fetchHistoryEntries() {
+    try {
+      const res = await fetch("/api/history");
+      const data = await res.json();
+      if (data.entries) setHistoryEntries(data.entries);
+    } catch {
+      /* ignore — filter simply won't show entries */
+    }
+  }
+
+  const toggleEntryId = useCallback((entryId: string) => {
+    setSelectedEntryIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(entryId)) next.delete(entryId);
+      else next.add(entryId);
+      return next;
+    });
+  }, []);
+
+  const clearEntryFilter = useCallback(() => {
+    setSelectedEntryIds(new Set());
+  }, []);
 
   async function handleExtract() {
     setExtracting(true);
@@ -118,6 +156,12 @@ export default function GraphPage() {
     if (!graph) return { nodes: [], links: [] };
 
     let nodes = graph.nodes;
+
+    if (selectedEntryIds.size > 0) {
+      nodes = nodes.filter((n) =>
+        n.sourceEntryIds.some((id) => selectedEntryIds.has(id))
+      );
+    }
     if (activeFilters.size > 0) {
       nodes = nodes.filter((n) => activeFilters.has(n.type));
     }
@@ -231,7 +275,7 @@ export default function GraphPage() {
             </Link>
             {graph && (
               <span className="text-xs text-neutral-500">
-                {graph.nodes.length} nodes &middot; {graph.edges.length} edges
+                {graphData.nodes.length}/{graph.nodes.length} nodes &middot; {graphData.links.length}/{graph.edges.length} edges
               </span>
             )}
           </div>
@@ -302,6 +346,80 @@ export default function GraphPage() {
               </button>
             );
           })}
+          {/* Entry / document filter */}
+          {graph && graph.sourceEntryIds.length > 0 && (
+            <div className="relative ml-2" ref={entryDropdownRef}>
+              <button
+                onClick={() => setEntryDropdownOpen((o) => !o)}
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium border transition-all ${
+                  selectedEntryIds.size > 0
+                    ? "bg-sky-600/20 text-sky-400 border-sky-500/40"
+                    : "bg-neutral-900 text-neutral-400 border-neutral-700 hover:border-neutral-500"
+                }`}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+                  <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+                </svg>
+                {selectedEntryIds.size > 0
+                  ? `${selectedEntryIds.size} doc${selectedEntryIds.size > 1 ? "s" : ""}`
+                  : "All docs"}
+                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
+              </button>
+
+              {entryDropdownOpen && (
+                <div className="absolute top-full left-0 mt-1 w-72 bg-neutral-900 border border-neutral-700 rounded-lg shadow-xl z-50 overflow-hidden">
+                  <div className="px-3 py-2 border-b border-neutral-800 flex items-center justify-between">
+                    <span className="text-xs font-semibold text-neutral-400">
+                      Filter by document
+                    </span>
+                    {selectedEntryIds.size > 0 && (
+                      <button
+                        onClick={clearEntryFilter}
+                        className="text-[10px] text-sky-400 hover:text-sky-300"
+                      >
+                        Clear all
+                      </button>
+                    )}
+                  </div>
+                  <div className="max-h-64 overflow-y-auto">
+                    {graph.sourceEntryIds.map((entryId) => {
+                      const entry = historyEntries.find((e) => e.id === entryId);
+                      const label = entry?.filename ?? entryId;
+                      const checked = selectedEntryIds.has(entryId);
+                      const nodeCount = graph.nodes.filter((n) =>
+                        n.sourceEntryIds.includes(entryId)
+                      ).length;
+                      return (
+                        <label
+                          key={entryId}
+                          className={`flex items-center gap-2.5 px-3 py-2 cursor-pointer hover:bg-neutral-800/60 transition-colors ${
+                            checked ? "bg-neutral-800/40" : ""
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() => toggleEntryId(entryId)}
+                            className="accent-sky-500 w-3.5 h-3.5 shrink-0"
+                          />
+                          <span className="text-xs text-neutral-200 truncate flex-1">
+                            {label}
+                          </span>
+                          <span className="text-[10px] text-neutral-600 shrink-0">
+                            {nodeCount} nodes
+                          </span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="ml-auto">
             <input
               type="text"
