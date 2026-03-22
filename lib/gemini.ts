@@ -27,8 +27,8 @@ For EACH text block you detect, return:
 Rules:
 1. Detect ALL visible text regions, including titles, annotations, and marginal notes
 2. Preserve the reading order (top-to-bottom for vertical text, right-to-left columns)
-3. Keep punctuation marks (。、！？「」『』) if present
-4. Do NOT translate or simplify characters — output exactly what you see
+3. PUNCTUATION (句讀): Classical Chinese texts often lack punctuation. You MUST intelligently add punctuation based on the grammatical structure and contextual meaning of the text. Use standard Chinese punctuation marks: 。(period for declarative sentences), ，(comma for clauses), ；(semicolon), ！(exclamation), ？(question), ：(colon), 「」(quotation marks), 《》(book titles). If the original image already contains punctuation, preserve it as-is.
+4. Do NOT translate or simplify characters — output the original characters exactly as they appear, but with added punctuation
 5. Each distinct line or column should be a separate block
 6. Be PRECISE with bounding boxes — they must tightly wrap the text they contain
 
