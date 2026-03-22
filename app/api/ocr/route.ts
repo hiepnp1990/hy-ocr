@@ -28,8 +28,8 @@ export async function POST(request: NextRequest): Promise<NextResponse<OCRRespon
       success: true,
       result: {
         blocks,
-        imageWidth: 1000,
-        imageHeight: 1000,
+        imageWidth: 0,
+        imageHeight: 0,
       },
     });
   } catch (error) {

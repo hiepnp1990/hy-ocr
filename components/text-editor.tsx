@@ -10,6 +10,7 @@ interface TextEditorProps {
   blocks: OCRBlock[];
   selectedBlockId: string | null;
   editedBlockIds: Set<string>;
+  highlightedBlockIds?: Set<string>;
   onBlockSelect: (blockId: string) => void;
   onBlockTextChange: (blockId: string, newText: string) => void;
 }
@@ -18,6 +19,7 @@ export function TextEditor({
   blocks,
   selectedBlockId,
   editedBlockIds,
+  highlightedBlockIds,
   onBlockSelect,
   onBlockTextChange,
 }: TextEditorProps) {
@@ -53,6 +55,7 @@ export function TextEditor({
         {blocks.map((block, index) => {
           const isSelected = block.id === selectedBlockId;
           const isEdited = editedBlockIds.has(block.id);
+          const isHighlighted = highlightedBlockIds?.has(block.id) ?? false;
 
           return (
             <div
@@ -61,7 +64,9 @@ export function TextEditor({
               className={`rounded-lg border p-3 transition-all cursor-pointer ${
                 isSelected
                   ? "border-primary ring-2 ring-primary/20 bg-primary/5"
-                  : "border-border hover:border-primary/40"
+                  : isHighlighted
+                    ? "border-fuchsia-400 ring-2 ring-fuchsia-300/30 bg-fuchsia-50"
+                    : "border-border hover:border-primary/40"
               }`}
               onClick={() => onBlockSelect(block.id)}
             >
@@ -69,6 +74,11 @@ export function TextEditor({
                 <span className="text-xs font-mono text-muted-foreground">
                   #{index + 1}
                 </span>
+                {isHighlighted && (
+                  <Badge variant="outline" className="text-xs text-fuchsia-600 border-fuchsia-300">
+                    match
+                  </Badge>
+                )}
                 {isEdited && (
                   <Badge variant="outline" className="text-xs text-green-600 border-green-300">
                     edited

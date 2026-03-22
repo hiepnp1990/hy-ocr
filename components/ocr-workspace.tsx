@@ -12,9 +12,10 @@ interface OCRWorkspaceProps {
   imageUrl: string;
   blocks: OCRBlock[];
   onBlocksChange: (blocks: OCRBlock[]) => void;
+  highlightedBlockIds?: Set<string>;
 }
 
-export function OCRWorkspace({ imageUrl, blocks, onBlocksChange }: OCRWorkspaceProps) {
+export function OCRWorkspace({ imageUrl, blocks, onBlocksChange, highlightedBlockIds }: OCRWorkspaceProps) {
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [editedBlockIds, setEditedBlockIds] = useState<Set<string>>(new Set());
   const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
@@ -94,6 +95,7 @@ export function OCRWorkspace({ imageUrl, blocks, onBlocksChange }: OCRWorkspaceP
                   blocks={blocks}
                   selectedBlockId={selectedBlockId}
                   editedBlockIds={editedBlockIds}
+                  highlightedBlockIds={highlightedBlockIds}
                   onBlockSelect={handleBlockSelect}
                   containerWidth={imageDimensions.width}
                   containerHeight={imageDimensions.height}
@@ -121,6 +123,7 @@ export function OCRWorkspace({ imageUrl, blocks, onBlocksChange }: OCRWorkspaceP
               blocks={blocks}
               selectedBlockId={selectedBlockId}
               editedBlockIds={editedBlockIds}
+              highlightedBlockIds={highlightedBlockIds}
               onBlockSelect={handleBlockSelect}
               onBlockTextChange={handleBlockTextChange}
             />

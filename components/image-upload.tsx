@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 interface ImageUploadProps {
-  onImageSelected: (dataUrl: string, mimeType: string) => void;
+  onImageSelected: (dataUrl: string, mimeType: string, filename?: string) => void;
   disabled?: boolean;
 }
 
@@ -21,7 +21,7 @@ export function ImageUpload({ onImageSelected, disabled }: ImageUploadProps) {
       const reader = new FileReader();
       reader.onload = (e) => {
         const dataUrl = e.target?.result as string;
-        onImageSelected(dataUrl, file.type);
+        onImageSelected(dataUrl, file.type, file.name);
       };
       reader.readAsDataURL(file);
     },

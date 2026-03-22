@@ -17,9 +17,12 @@ Your task: Given a scanned image, detect every text region and return structured
 For EACH text block you detect, return:
 - "text": the recognized Chinese characters (preserve original traditional/classical forms)
 - "bbox": bounding box as {"x": number, "y": number, "width": number, "height": number}
-  - Coordinates are normalized to a 0–1000 scale relative to the image dimensions
-  - (0,0) is the top-left corner
-  - x and width are horizontal, y and height are vertical
+  - All values are PROPORTIONS of the full image dimension, ranging from 0.000 to 1.000
+  - Use exactly 3 decimal places (e.g. 0.123, 0.456)
+  - x and width are proportions of image WIDTH
+  - y and height are proportions of image HEIGHT
+  - (0.000, 0.000) is the top-left corner; (1.000, 1.000) is the bottom-right corner
+  - Example: a box covering the right half of the image horizontally and top quarter vertically → {"x": 0.500, "y": 0.000, "width": 0.500, "height": 0.250}
 
 Rules:
 1. Detect ALL visible text regions, including titles, annotations, and marginal notes
@@ -27,9 +30,10 @@ Rules:
 3. Keep punctuation marks (。、！？「」『』) if present
 4. Do NOT translate or simplify characters — output exactly what you see
 5. Each distinct line or column should be a separate block
+6. Be PRECISE with bounding boxes — they must tightly wrap the text they contain
 
 Return ONLY valid JSON in this exact format (no markdown fencing, no extra text):
-{"blocks": [{"text": "...", "bbox": {"x": 0, "y": 0, "width": 0, "height": 0}}, ...]}`;
+{"blocks": [{"text": "...", "bbox": {"x": 0.000, "y": 0.000, "width": 0.000, "height": 0.000}}, ...]}`;
 
 export async function performOCR(
   imageBase64: string,
