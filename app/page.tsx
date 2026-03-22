@@ -4,6 +4,7 @@ import { Suspense, useCallback, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ImageUpload } from "@/components/image-upload";
+import { BatchUpload } from "@/components/batch-upload";
 import { HistorySidebar } from "@/components/history-sidebar";
 import { Button } from "@/components/ui/button";
 import type { OCRBlock, OCRResponse, HistoryEntry } from "@/lib/types";
@@ -27,6 +28,8 @@ function HomeInner() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasResults, setHasResults] = useState(false);
+
+  const [uploadMode, setUploadMode] = useState<"single" | "batch">("single");
 
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [showHistory, setShowHistory] = useState(false);
@@ -372,7 +375,7 @@ function HomeInner() {
 
             {!imageUrl ? (
               <div className="max-w-xl mx-auto mt-16">
-                <div className="text-center mb-8">
+                <div className="text-center mb-6">
                   <h2 className="text-2xl font-bold tracking-tight mb-2">
                     Upload a Scanned Document
                   </h2>
@@ -381,11 +384,40 @@ function HomeInner() {
                     extract and edit text using AI-powered OCR.
                   </p>
                 </div>
-                <ImageUpload
-                  onImageSelected={handleImageSelected}
-                  onTextSelected={handleTextSelected}
-                  disabled={isProcessing}
-                />
+
+                {/* Mode tabs */}
+                <div className="flex items-center justify-center gap-1 mb-6 p-1 rounded-lg bg-muted w-fit mx-auto">
+                  <button
+                    className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                      uploadMode === "single"
+                        ? "bg-background text-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                    onClick={() => setUploadMode("single")}
+                  >
+                    Single File
+                  </button>
+                  <button
+                    className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                      uploadMode === "batch"
+                        ? "bg-background text-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                    onClick={() => setUploadMode("batch")}
+                  >
+                    Multiple Files
+                  </button>
+                </div>
+
+                {uploadMode === "single" ? (
+                  <ImageUpload
+                    onImageSelected={handleImageSelected}
+                    onTextSelected={handleTextSelected}
+                    disabled={isProcessing}
+                  />
+                ) : (
+                  <BatchUpload onProcessed={loadHistory} />
+                )}
               </div>
             ) : (
               <div className="flex flex-col items-center gap-6 mt-8">

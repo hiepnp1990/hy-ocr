@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync, unlinkSync } from "fs";
 import { join } from "path";
 import type { HistoryEntry, HistoryIndex, OCRBlock } from "./types";
+import { removeEntryFromGraph } from "./knowledge-graph";
 
 const DATA_DIR = join(process.cwd(), ".data");
 const IMAGES_DIR = join(DATA_DIR, "images");
@@ -158,13 +159,18 @@ export function deleteHistoryEntry(id: string): boolean {
   if (entryIdx === -1) return false;
 
   const entry = index.entries[entryIdx];
-  const imagePath = join(DATA_DIR, entry.imagePath);
-  if (existsSync(imagePath)) {
-    unlinkSync(imagePath);
+  if (entry.imagePath) {
+    const imagePath = join(DATA_DIR, entry.imagePath);
+    if (existsSync(imagePath)) {
+      unlinkSync(imagePath);
+    }
   }
 
   index.entries.splice(entryIdx, 1);
   writeIndex(index);
+
+  removeEntryFromGraph(id);
+
   return true;
 }
 

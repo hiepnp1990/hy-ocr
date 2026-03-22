@@ -168,6 +168,49 @@ export function mergeIntoGraph(
   return updated;
 }
 
+/* ── Cleanup ── */
+
+/**
+ * Remove all graph data associated with a deleted history entry.
+ * - Nodes sourced only by this entry are removed entirely.
+ * - Nodes shared with other entries just have the entryId stripped from sourceEntryIds.
+ * - Edges referencing removed nodes are pruned.
+ * - The entryId is removed from the top-level sourceEntryIds.
+ */
+export function removeEntryFromGraph(entryId: string): void {
+  const graph = getStoredGraph();
+  if (!graph) return;
+
+  if (!graph.sourceEntryIds.includes(entryId)) return;
+
+  const updatedNodes: GraphNode[] = [];
+  for (const node of graph.nodes) {
+    const remaining = node.sourceEntryIds.filter((id) => id !== entryId);
+    if (remaining.length > 0) {
+      updatedNodes.push({ ...node, sourceEntryIds: remaining });
+    }
+  }
+
+  const survivingNodeIds = new Set(updatedNodes.map((n) => n.id));
+  const updatedEdges = graph.edges.filter(
+    (e) => survivingNodeIds.has(e.source) && survivingNodeIds.has(e.target)
+  );
+
+  const updatedSourceIds = graph.sourceEntryIds.filter((id) => id !== entryId);
+
+  if (updatedNodes.length === 0) {
+    saveGraph(emptyGraph());
+    return;
+  }
+
+  saveGraph({
+    nodes: updatedNodes,
+    edges: updatedEdges,
+    extractedAt: new Date().toISOString(),
+    sourceEntryIds: updatedSourceIds,
+  });
+}
+
 /* ── High-level operations ── */
 
 /**
