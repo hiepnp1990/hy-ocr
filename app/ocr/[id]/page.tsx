@@ -119,7 +119,7 @@ function OCRDetailInner() {
   );
 
   return (
-    <main className="flex flex-col min-h-screen">
+    <main className="flex flex-col h-screen overflow-hidden">
       <header className="border-b-2 border-border bg-card/80 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -259,8 +259,8 @@ function OCRDetailInner() {
           />
         )}
 
-        <div className="flex-1 overflow-auto">
-          <div className="max-w-7xl mx-auto w-full px-6 py-8">
+        <div className="flex-1 min-h-0 overflow-hidden">
+          <div className="max-w-7xl mx-auto w-full px-6 py-4 h-full flex flex-col">
             {loading && (
               <div className="text-center py-16 text-muted-foreground">
                 <p className="text-base">Loading document...</p>

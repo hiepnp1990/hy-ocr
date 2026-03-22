@@ -42,7 +42,7 @@ export function OCRWorkspace({ imageUrl, blocks, onBlocksChange, highlightedBloc
   }, [imageUrl]);
 
   const handleBlockSelect = useCallback((blockId: string) => {
-    setSelectedBlockId((prev) => (prev === blockId ? null : blockId));
+    setSelectedBlockId(blockId);
   }, []);
 
   const handleBlockTextChange = useCallback(
@@ -69,8 +69,8 @@ export function OCRWorkspace({ imageUrl, blocks, onBlocksChange, highlightedBloc
   }, []);
 
   return (
-    <div className="flex flex-col h-full gap-6">
-      <div className="flex items-center justify-between">
+    <div className="flex flex-col h-full min-h-0 gap-3">
+      <div className="flex items-center justify-between shrink-0">
         <div className="flex items-center gap-4">
           <h2 className="text-2xl font-semibold tracking-wide" style={{ fontFamily: "var(--font-heading)" }}>OCR Results</h2>
           {modelName && (
@@ -83,13 +83,13 @@ export function OCRWorkspace({ imageUrl, blocks, onBlocksChange, highlightedBloc
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 min-h-0">
-        <Card className="relative overflow-auto p-0">
-          <div className="p-4 border-b-2">
+        <Card className="relative overflow-hidden p-0 min-h-0 flex flex-col">
+          <div className="p-4 border-b-2 shrink-0">
             <h3 className="text-base font-medium text-muted-foreground">
               Original Image
             </h3>
           </div>
-          <div className="p-5 overflow-auto">
+          <div className="p-5 overflow-auto flex-1 min-h-0">
             <div ref={imageContainerRef} className="relative inline-block">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -113,8 +113,8 @@ export function OCRWorkspace({ imageUrl, blocks, onBlocksChange, highlightedBloc
           </div>
         </Card>
 
-        <Card className="flex flex-col overflow-hidden p-0">
-          <div className="p-4 border-b-2 flex items-center justify-between">
+        <Card className="flex flex-col overflow-hidden p-0 min-h-0">
+          <div className="p-4 border-b-2 flex items-center justify-between shrink-0">
             <h3 className="text-base font-medium text-muted-foreground">
               Recognized Text
             </h3>
@@ -124,8 +124,8 @@ export function OCRWorkspace({ imageUrl, blocks, onBlocksChange, highlightedBloc
               </span>
             )}
           </div>
-          <Separator />
-          <div className="flex-1 min-h-0">
+          <Separator className="shrink-0" />
+          <div className="flex-1 min-h-0 overflow-hidden">
             <TextEditor
               blocks={blocks}
               selectedBlockId={selectedBlockId}

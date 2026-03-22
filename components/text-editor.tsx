@@ -1,9 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useLayoutEffect, useRef } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import type { OCRBlock } from "@/lib/types";
 
 interface TextEditorProps {
@@ -23,12 +22,32 @@ export function TextEditor({
   onBlockSelect,
   onBlockTextChange,
 }: TextEditorProps) {
+  const MAX_VISIBLE_BLOCKS = 5;
+  const APPROX_BLOCK_HEIGHT_PX = 148;
+  const BLOCK_GAP_PX = 16;
+  const LIST_MAX_HEIGHT =
+    MAX_VISIBLE_BLOCKS * APPROX_BLOCK_HEIGHT_PX + (MAX_VISIBLE_BLOCKS - 1) * BLOCK_GAP_PX;
+
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const blockRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
-  useEffect(() => {
-    if (selectedBlockId) {
+  useLayoutEffect(() => {
+    if (selectedBlockId && scrollContainerRef.current) {
       const el = blockRefs.current.get(selectedBlockId);
-      el?.scrollIntoView({ behavior: "smooth", block: "center" });
+      if (el) {
+        const container = scrollContainerRef.current;
+        requestAnimationFrame(() => {
+          const containerRect = container.getBoundingClientRect();
+          const elRect = el.getBoundingClientRect();
+          const targetScrollTop =
+            container.scrollTop +
+            (elRect.top - containerRect.top) -
+            container.clientHeight / 2 +
+            elRect.height / 2;
+
+          container.scrollTo({ top: Math.max(0, targetScrollTop), behavior: "smooth" });
+        });
+      }
     }
   }, [selectedBlockId]);
 
@@ -41,17 +60,21 @@ export function TextEditor({
   );
 
   return (
-    <ScrollArea className="h-full">
-      <div className="flex flex-col gap-4 p-5">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-base font-semibold tracking-tight">
-            Detected Text Blocks
-          </h3>
-          <Badge variant="secondary" className="text-sm">
-            {blocks.length} blocks
-          </Badge>
-        </div>
-
+    <div className="h-full min-h-0 flex flex-col">
+      <div className="flex items-center justify-between p-5 pb-3 shrink-0">
+        <h3 className="text-base font-semibold tracking-tight">
+          Detected Text Blocks
+        </h3>
+        <Badge variant="secondary" className="text-sm">
+          {blocks.length} blocks
+        </Badge>
+      </div>
+      <div
+        ref={scrollContainerRef}
+        className="overflow-y-auto px-5 pb-5 min-h-0"
+        style={{ maxHeight: `${LIST_MAX_HEIGHT}px` }}
+      >
+        <div className="flex flex-col gap-4">
         {blocks.map((block, index) => {
           const isSelected = block.id === selectedBlockId;
           const isEdited = editedBlockIds.has(block.id);
@@ -100,7 +123,8 @@ export function TextEditor({
             No text blocks detected yet. Upload an image and run OCR to see results.
           </p>
         )}
+        </div>
       </div>
-    </ScrollArea>
+    </div>
   );
 }
