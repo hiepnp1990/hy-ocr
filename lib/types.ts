@@ -16,6 +16,7 @@ export interface OCRResult {
   blocks: OCRBlock[];
   imageWidth: number;
   imageHeight: number;
+  modelName?: string;
 }
 
 export interface OCRRequest {
@@ -36,6 +37,7 @@ export interface HistoryEntry {
   /** Relative path to the saved image inside the data dir */
   imagePath: string;
   blocks: OCRBlock[];
+  modelName?: string;
   createdAt: string;
   updatedAt: string;
 }

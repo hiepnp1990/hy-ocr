@@ -9,7 +9,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { filename, mimeType, image, blocks } = body;
+    const { filename, mimeType, image, blocks, modelName } = body;
 
     if (!filename || !mimeType || !image || !blocks) {
       return NextResponse.json(
@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const entry = saveHistoryEntry(filename, mimeType, image, blocks);
+    const entry = saveHistoryEntry(filename, mimeType, image, blocks, modelName);
     return NextResponse.json({ entry });
   } catch (error) {
     console.error("History save error:", error);

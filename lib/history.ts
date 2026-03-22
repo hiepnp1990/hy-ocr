@@ -48,7 +48,8 @@ export function saveHistoryEntry(
   filename: string,
   mimeType: string,
   imageDataUrl: string,
-  blocks: OCRBlock[]
+  blocks: OCRBlock[],
+  modelName?: string
 ): HistoryEntry {
   ensureDirs();
   const index = readIndex();
@@ -66,6 +67,7 @@ export function saveHistoryEntry(
     existing.blocks = blocks;
     existing.updatedAt = now;
     existing.filename = filename;
+    if (modelName) existing.modelName = modelName;
     writeIndex(index);
     return existing;
   }
@@ -80,6 +82,7 @@ export function saveHistoryEntry(
     mimeType,
     imagePath: `images/${imageFilename}`,
     blocks,
+    modelName,
     createdAt: now,
     updatedAt: now,
   };

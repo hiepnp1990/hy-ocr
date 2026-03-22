@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { performOCR } from "@/lib/gemini";
+import { performOCR, MODEL_NAME } from "@/lib/gemini";
 import type { OCRResponse, OCRBlock } from "@/lib/types";
 
 export async function POST(request: NextRequest): Promise<NextResponse<OCRResponse>> {
@@ -30,6 +30,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<OCRRespon
         blocks,
         imageWidth: 0,
         imageHeight: 0,
+        modelName: MODEL_NAME,
       },
     });
   } catch (error) {

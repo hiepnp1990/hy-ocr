@@ -1,10 +1,9 @@
 "use client";
 
 import { Suspense, useCallback, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ImageUpload } from "@/components/image-upload";
-import { OCRWorkspace } from "@/components/ocr-workspace";
 import { HistorySidebar } from "@/components/history-sidebar";
 import { Button } from "@/components/ui/button";
 import type { OCRBlock, OCRResponse, HistoryEntry } from "@/lib/types";
@@ -19,6 +18,7 @@ export default function Home() {
 
 function HomeInner() {
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [imageFilename, setImageFilename] = useState<string>("");
@@ -49,30 +49,11 @@ function HomeInner() {
   useEffect(() => {
     const loadId = searchParams.get("load");
     if (!loadId) return;
-
-    (async () => {
-      try {
-        const res = await fetch(`/api/history/${loadId}`);
-        if (!res.ok) return;
-        const data = await res.json();
-        const entry: HistoryEntry = data.entry;
-        if (entry) {
-          setImageUrl(`/api/history/${entry.id}/image`);
-          setMimeType(entry.mimeType);
-          setImageFilename(entry.filename);
-          setBlocks(entry.blocks);
-          setHasResults(entry.blocks.length > 0);
-          setActiveHistoryId(entry.id);
-          setError(null);
-        }
-      } catch {
-        /* silent */
-      }
-    })();
-  }, [searchParams]);
+    router.replace(`/ocr/${loadId}`);
+  }, [searchParams, router]);
 
   const saveToHistory = useCallback(
-    async (img: string, mime: string, filename: string, ocrBlocks: OCRBlock[]) => {
+    async (img: string, mime: string, filename: string, ocrBlocks: OCRBlock[], modelName?: string) => {
       try {
         const res = await fetch("/api/history", {
           method: "POST",
@@ -82,6 +63,7 @@ function HomeInner() {
             mimeType: mime,
             image: img,
             blocks: ocrBlocks,
+            modelName,
           }),
         });
         const data = await res.json();
@@ -94,29 +76,13 @@ function HomeInner() {
           }).catch(() => {});
         }
         await loadHistory();
+        return data.entry?.id as string | undefined;
       } catch {
         /* silent */
+        return undefined;
       }
     },
     [loadHistory]
-  );
-
-  const handleSaveEdits = useCallback(
-    async (updatedBlocks: OCRBlock[]) => {
-      setBlocks(updatedBlocks);
-      if (!activeHistoryId) return;
-      try {
-        await fetch(`/api/history/${activeHistoryId}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ blocks: updatedBlocks }),
-        });
-        await loadHistory();
-      } catch {
-        /* silent */
-      }
-    },
-    [activeHistoryId, loadHistory]
   );
 
   const handleImageSelected = useCallback(
@@ -149,7 +115,13 @@ function HomeInner() {
       if (data.success && data.result) {
         setBlocks(data.result.blocks);
         setHasResults(true);
-        await saveToHistory(imageUrl, mimeType, imageFilename, data.result.blocks);
+        const entryId = await saveToHistory(
+          imageUrl, mimeType, imageFilename,
+          data.result.blocks, data.result.modelName
+        );
+        if (entryId) {
+          router.push(`/ocr/${entryId}`);
+        }
       } else {
         setError(data.error || "OCR processing failed");
       }
@@ -158,7 +130,7 @@ function HomeInner() {
     } finally {
       setIsProcessing(false);
     }
-  }, [imageUrl, mimeType, imageFilename, saveToHistory]);
+  }, [imageUrl, mimeType, imageFilename, saveToHistory, router]);
 
   const handleReset = useCallback(() => {
     setImageUrl(null);
@@ -171,14 +143,18 @@ function HomeInner() {
   }, []);
 
   const handleLoadFromHistory = useCallback((entry: HistoryEntry) => {
-    setImageUrl(`/api/history/${entry.id}/image`);
-    setMimeType(entry.mimeType);
-    setImageFilename(entry.filename);
-    setBlocks(entry.blocks);
-    setHasResults(entry.blocks.length > 0);
-    setActiveHistoryId(entry.id);
-    setError(null);
-  }, []);
+    if (entry.blocks.length > 0) {
+      router.push(`/ocr/${entry.id}`);
+    } else {
+      setImageUrl(`/api/history/${entry.id}/image`);
+      setMimeType(entry.mimeType);
+      setImageFilename(entry.filename);
+      setBlocks(entry.blocks);
+      setHasResults(false);
+      setActiveHistoryId(entry.id);
+      setError(null);
+    }
+  }, [router]);
 
   const handleDeleteFromHistory = useCallback(
     async (id: string) => {
@@ -378,7 +354,7 @@ function HomeInner() {
                   disabled={isProcessing}
                 />
               </div>
-            ) : !hasResults ? (
+            ) : (
               <div className="flex flex-col items-center gap-6 mt-8">
                 <div className="max-w-2xl w-full">
                   <div className="rounded-lg border overflow-hidden bg-muted/30">
@@ -390,16 +366,16 @@ function HomeInner() {
                     />
                   </div>
                   <p className="text-sm text-muted-foreground text-center mt-3">
-                    Image uploaded. Click <strong>Run OCR</strong> to extract text.
+                    {isProcessing ? (
+                      "Processing OCR... You will be redirected when complete."
+                    ) : hasResults ? (
+                      "Redirecting to results..."
+                    ) : (
+                      <>Image uploaded. Click <strong>Run OCR</strong> to extract text.</>
+                    )}
                   </p>
                 </div>
               </div>
-            ) : (
-              <OCRWorkspace
-                imageUrl={imageUrl}
-                blocks={blocks}
-                onBlocksChange={handleSaveEdits}
-              />
             )}
           </div>
         </div>

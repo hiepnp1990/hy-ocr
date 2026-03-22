@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { BoundingBoxOverlay } from "./bounding-box-overlay";
 import { TextEditor } from "./text-editor";
@@ -13,9 +14,10 @@ interface OCRWorkspaceProps {
   blocks: OCRBlock[];
   onBlocksChange: (blocks: OCRBlock[]) => void;
   highlightedBlockIds?: Set<string>;
+  modelName?: string;
 }
 
-export function OCRWorkspace({ imageUrl, blocks, onBlocksChange, highlightedBlockIds }: OCRWorkspaceProps) {
+export function OCRWorkspace({ imageUrl, blocks, onBlocksChange, highlightedBlockIds, modelName }: OCRWorkspaceProps) {
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [editedBlockIds, setEditedBlockIds] = useState<Set<string>>(new Set());
   const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
@@ -69,7 +71,14 @@ export function OCRWorkspace({ imageUrl, blocks, onBlocksChange, highlightedBloc
   return (
     <div className="flex flex-col h-full gap-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold tracking-tight">OCR Results</h2>
+        <div className="flex items-center gap-3">
+          <h2 className="text-lg font-semibold tracking-tight">OCR Results</h2>
+          {modelName && (
+            <Badge variant="secondary" className="text-xs font-mono">
+              {modelName}
+            </Badge>
+          )}
+        </div>
         <DownloadButton blocks={blocks} />
       </div>
 
