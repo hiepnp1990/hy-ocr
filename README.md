@@ -41,6 +41,15 @@ This app uses Google's Gemini AI to read text from images. You need an API key t
 Open a terminal (on Mac: open the **Terminal** app; on Windows: open **PowerShell**) and run:
 
 ```bash
+# Install homebrew
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Install git
+brew install git
+
+# Get the code
+git clone https://github.com/hiepnp1990/hy-ocr.git
+
 # Go to the project folder (adjust the path to where you downloaded it)
 cd hy-ocr
 
